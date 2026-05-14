@@ -1,0 +1,11 @@
+D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\bin\Debug\net8.0\CMS.Data.deps.json
+D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\bin\Debug\net8.0\CMS.Data.dll
+D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\bin\Debug\net8.0\CMS.Data.pdb
+D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\obj\Debug\net8.0\CMS.Data.GeneratedMSBuildEditorConfig.editorconfig
+D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\obj\Debug\net8.0\CMS.Data.AssemblyInfoInputs.cache
+D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\obj\Debug\net8.0\CMS.Data.AssemblyInfo.cs
+D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\obj\Debug\net8.0\CMS.Data.csproj.CoreCompileInputs.cache
+D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\obj\Debug\net8.0\CMS.Data.dll
+D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\obj\Debug\net8.0\refint\CMS.Data.dll
+D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\obj\Debug\net8.0\CMS.Data.pdb
+D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\obj\Debug\net8.0\ref\CMS.Data.dll

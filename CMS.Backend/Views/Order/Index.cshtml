@@ -1,0 +1,80 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model IEnumerable<CMS.Data.Entities.Order>
+
+@{
+    ViewData["Title"] = "Danh sách đơn hàng";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-warning fw-bold text-dark">Quản Lý Đơn Hàng</h2>
+        <span class="badge bg-dark fs-6">Tổng số: @Model?.Count() đơn</span>
+    </div>
+
+    <table class="table table-bordered table-striped table-hover align-middle shadow-sm">
+        <thead class="table-warning text-dark">
+            <tr>
+                <th style="width: 100px;" class="text-center">Mã ĐH</th>
+                <th>Tên khách hàng</th>
+                <th>Ngày đặt hàng</th>
+                <th>Trạng thái đơn</th>
+                <th>Ghi chú</th>
+                <th style="width: 160px;" class="text-center">Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center fw-bold text-primary">#@item.Id</td>
+                        <td>
+                            <strong class="text-dark">@item.Customer?.FullName</strong>
+                            <br /><small class="text-muted">@item.Customer?.Email</small>
+                        </td>
+                        <td>@item.OrderDate.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            @* Xử lý chuyển đổi Status số sang giao diện chữ định dạng màu *@
+                            @if (item.Status == 0)
+                            {
+                                <span class="badge bg-secondary p-2">Chờ duyệt</span>
+                            }
+                            else if (item.Status == 1)
+                            {
+                                <span class="badge bg-primary p-2">Đang giao</span>
+                            }
+                            else if (item.Status == 2)
+                            {
+                                <span class="badge bg-success p-2">Đã xong</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger p-2">Hủy đơn</span>
+                            }
+                        </td>
+                        <td class="text-muted small">
+                            @(string.IsNullOrEmpty(item.Notes) ? "—" : item.Notes)
+                        </td>
+                        <td class="text-center">
+                            <a class="btn btn-outline-dark btn-sm">Chi tiết</a>
+                            <a class="btn btn-danger btn-sm" onclick="return confirm('Bạn có muốn xóa đơn hàng này?')">Xóa</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center text-muted p-4">
+                        Hệ thống chưa ghi nhận đơn hàng nào.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,72 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model IEnumerable<CMS.Data.Entities.OrderDetail>
+
+@{
+    ViewData["Title"] = "Chi tiết các mặt hàng đã bán";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-secondary fw-bold">Chi Tiết Các Mặt Hàng Đã Bán</h2>
+        <span class="badge bg-secondary fs-6">Hóa đơn chi tiết</span>
+    </div>
+
+    <table class="table table-bordered table-striped table-hover align-middle shadow-sm">
+        <thead class="table-secondary text-dark">
+            <tr>
+                <th style="width: 100px;" class="text-center">Mã ĐH</th>
+                <th style="width: 90px;" class="text-center">Hình ảnh</th>
+                <th>Tên sản phẩm</th>
+                <th class="text-center" style="width: 100px;">Số lượng</th>
+                <th class="text-end" style="width: 150px;">Giá lúc mua</th>
+                <th class="text-end" style="width: 180px;">Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    // Tính toán Thành tiền trực tiếp trên giao diện bằng công thức: Số lượng x Đơn giá
+                    decimal thanhTien = item.Quantity * item.UnitPrice;
+
+                    <tr>
+                        <td class="text-center fw-bold text-primary">#@item.OrderId</td>
+                        <td class="text-center">
+                            @if (!string.IsNullOrEmpty(item.Product?.ImageUrl))
+                            {
+                                <img src="@item.Product.ImageUrl" alt="Product" style="width: 50px; height: 50px; object-fit: cover;" class="rounded border" />
+                            }
+                            else
+                            {
+                                <img src="/images/no-image.png" alt="No Image" style="width: 50px; height: 50px; object-fit: cover;" class="rounded border" />
+                            }
+                        </td>
+                        <td>
+                            <strong class="text-dark">@item.Product?.Name</strong>
+                        </td>
+                        <td class="text-center fw-semibold">@item.Quantity</td>
+                        <td class="text-end text-muted">
+                            @item.UnitPrice.ToString("#,##0") đ
+                        </td>
+                        <td class="text-end text-danger fw-bold">
+                            @thanhTien.ToString("#,##0") đ
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center text-muted p-4">
+                        Chưa có mặt hàng nào được xuất bán.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

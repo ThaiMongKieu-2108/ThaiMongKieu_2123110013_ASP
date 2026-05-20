@@ -4,67 +4,47 @@ mã số: 2123110013
 ngày tạo: 14-05-2026
 version: 1.0
  */
-
-using Microsoft.AspNetCore.Mvc;
+using CMS.Data;
 using CMS.Data.Entities; // Thêm using cho các thực thể dữ liệu nếu cần thiết
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore; // Thêm using cho Entity Framework
 namespace CMS.Backend.Controllers
+
 {
     public class PostController : Controller
     {
-        // Hàm Index: Hiển thị danh sách bài viết mẫu
+        // Tương tự như CategoryController, chúng ta sẽ "tiêm" ApplicationDbContext để truy cập dữ liệu từ SQL
+
+        private readonly ApplicationDbContext _context;
+
+        // "Tiêm" kết nối vào Controller tương tự như CategoryController của bạn
+        public PostController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
         public IActionResult Index()
         {
-       
-            // 1. Tạo dữ liệu giả (Mock Data) cho Bài viết
-            var posts = new List<Post>
-            {
-                new Post
-                {
-                    Id = 1,
-                    Title = "Lộ trình học ASP.NET Core cho người mới",
-                    Content = "Nội dung bài viết về lộ trình học .NET...",
-                    ImageUrl = "https://via.placeholder.com/150",
-                    CreatedDate = DateTime.Now
-                },
-                new Post
-                {
-                    Id = 2,
-                    Title = "ReactJS và WebAPI: Xu hướng Fullstack 2026",
-                    Content = "Nội dung bài viết về sự kết hợp React và API...",
-                    ImageUrl = "https://via.placeholder.com/150",
-                    CreatedDate = DateTime.Now.AddDays(-1)
-                },
-                new Post
-                {
-                    Id = 3,
-                    Title = "Hướng dẫn cài đặt môi trường Visual Studio",
-                    Content = "Các bước cài đặt công cụ cần thiết cho lập trình viên...",
-                    ImageUrl = "https://via.placeholder.com/150",
-                    CreatedDate = DateTime.Now.AddDays(-2)
-                }
-            };
-
-            // 2. Gửi danh sách dữ liệu sang View
+            var posts = _context.Posts.ToList(); // Lấy tất cả bài viết
             return View(posts);
 
         }
         // Hàm Details: Hiển thị chi tiết một bài viết (Bổ sung  khá giỏi)
         public IActionResult Details(int id)
         {
-            // Giả lập tìm bài viết trong Database bằng Id
-            // Trong thực tế tuần sau sẽ là: _context.Posts.Find(id);
-            var post = new Post
+            // Lấy dữ liệu THẬT từ bảng Posts trong SQL Server dựa vào Id truyền vào.
+            // Đồng thời nạp kèm (Include) dữ liệu của danh mục (Category) liên kết để hiển thị ngoài View.
+            var post = _context.Posts
+                               .Include(p => p.Category)
+                               .FirstOrDefault(p => p.Id == id);
+
+            // Nếu không tìm thấy bài viết nào ứng với Id đó trong Database, trả về trang lỗi 404
+            if (post == null)
             {
-                Id = id,
-                Title = "Nội dung chi tiết bài viết số " + id,
-                Content = "Đây là nội dung đầy đủ của bài viết mà bạn vừa click vào. Ở đây  có thể viết dài hơn để thấy sự khác biệt với trang danh sách.",
-                ImageUrl = "https://via.placeholder.com/600x300", // Ảnh to hơn
-                CreatedDate = DateTime.Now
-            };
+                return NotFound();
+            }
 
-            if (post == null) return NotFound();
-
+            // Truyền đối tượng bài viết thật qua View để hiển thị
             return View(post);
         }
 

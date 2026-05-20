@@ -9,3 +9,7 @@ D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\obj\Debug\net8.0\CMS.Data.dll
 D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\obj\Debug\net8.0\refint\CMS.Data.dll
 D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\obj\Debug\net8.0\CMS.Data.pdb
 D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\obj\Debug\net8.0\ref\CMS.Data.dll
+D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\bin\Debug\net8.0\CMS.Data.runtimeconfig.json
+D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\obj\Debug\net8.0\CMS.Data.csproj.AssemblyReference.cache
+D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\obj\Debug\net8.0\CMS.Data.sourcelink.json
+D:\asp\ThaiMongKieuCMS_Solution\CMS.Data\obj\Debug\net8.0\CMS.Data.genruntimeconfig.cache

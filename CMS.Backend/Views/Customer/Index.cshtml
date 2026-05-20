@@ -1,0 +1,60 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model IEnumerable<CMS.Data.Entities.Customer>
+
+@{
+    ViewData["Title"] = "Danh sách khách hàng";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-info fw-bold">Quản Lý Khách Hàng</h2>
+        <button class="btn btn-info text-white btn-sm fw-semibold">
+            <i class="bi bi-plus-circle"></i> Thêm khách hàng mới
+        </button>
+    </div>
+
+    <table class="table table-bordered table-striped table-hover align-middle shadow-sm">
+        <thead class="table-info text-dark">
+            <tr>
+                <th style="width: 80px;" class="text-center">Mã KH</th>
+                <th>Họ và tên</th>
+                <th>Địa chỉ Email</th>
+                <th>Số điện thoại</th>
+                <th>Địa chỉ</th>
+                <th style="width: 160px;" class="text-center">Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center fw-bold text-secondary">@item.Id</td>
+                        <td><strong class="text-dark">@item.FullName</strong></td>
+                        <td class="text-muted">@item.Email</td>
+                        <td>@(string.IsNullOrEmpty(item.Phone) ? "—" : item.Phone)</td>
+                        <td>@(string.IsNullOrEmpty(item.Address) ? "—" : item.Address)</td>
+                        <td class="text-center">
+                            <a class="btn btn-warning btn-sm">Sửa</a>
+                            <a class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa khách hàng này?')">Xóa</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="text-center text-muted p-4">
+                        Hệ thống chưa có thông tin khách hàng nào.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

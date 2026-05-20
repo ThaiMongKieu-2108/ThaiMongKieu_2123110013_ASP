@@ -1,0 +1,55 @@
+﻿
+@model IEnumerable<CMS.Data.Entities.CategoryProduct>
+
+@{
+    ViewData["Title"] = "Danh mục sản phẩm";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-primary fw-bold">Quản Lý Danh Mục Sản Phẩm</h2>
+        <button class="btn btn-success btn-sm">
+            <i class="bi bi-plus-circle"></i> Thêm danh mục mới
+        </button>
+    </div>
+
+    <table class="table table-bordered table-striped table-hover shadow-sm align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th style="width: 100px;" class="text-center">Mã DM</th>
+                <th>Tên danh mục sản phẩm</th>
+                <th>Mô tả ngắn</th>
+                <th style="width: 180px;" class="text-center">Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center fw-bold text-secondary">@item.Id</td>
+                        <td><strong class="text-dark">@item.Name</strong></td>
+                        <td class="text-muted">
+                            @* Nếu mô tả trống thì hiển thị dấu gạch ngang *@
+                            @(string.IsNullOrEmpty(item.Description) ? "—" : item.Description)
+                        </td>
+                        <td class="text-center">
+                            <a class="btn btn-warning btn-sm fw-semibold">Sửa</a>
+                            <a class="btn btn-danger btn-sm fw-semibold" onclick="return confirm('Bạn chắc chắn muốn xóa danh mục này?')">Xóa</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4" class="text-center text-muted p-4">
+                        <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                        Hệ thống chưa có dữ liệu danh mục sản phẩm.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

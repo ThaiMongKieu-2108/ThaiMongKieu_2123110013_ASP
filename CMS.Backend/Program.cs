@@ -1,7 +1,22 @@
+﻿/*
+sinh viên: Thái Mộng Kiều
+mã số: 2123110013
+ngày tạo: 14-05-2026
+version: 1.0
+ */
+using Microsoft.EntityFrameworkCore;
+using CMS.Data;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Đăng ký DbContext vào hệ thống
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 var app = builder.Build();
 

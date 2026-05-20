@@ -1,0 +1,87 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model IEnumerable<CMS.Data.Entities.Product>
+
+@{
+    ViewData["Title"] = "Danh sách sản phẩm";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="text-success fw-bold">Quản Lý Danh Sách Sản Phẩm</h2>
+        <button class="btn btn-success btn-sm">
+            <i class="bi bi-plus-circle"></i> Thêm sản phẩm mới
+        </button>
+    </div>
+
+    <table class="table table-bordered table-striped table-hover align-middle shadow-sm">
+        <thead class="table-success text-dark">
+            <tr>
+                <th style="width: 80px;" class="text-center">Mã SP</th>
+                <th style="width: 100px;" class="text-center">Hình ảnh</th>
+                <th>Tên sản phẩm</th>
+                <th>Danh mục</th>
+                <th class="text-end">Giá bán</th>
+                <th class="text-center">Tồn kho</th>
+                <th style="width: 160px;" class="text-center">Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center fw-bold text-secondary">@item.Id</td>
+                        <td class="text-center">
+                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                            {
+                                <img src="@item.ImageUrl" alt="@item.Name" style="width: 60px; height: 60px; object-fit: cover;" class="rounded border" />
+                            }
+                            else
+                            {
+                                <img src="/images/no-image.png" alt="No Image" style="width: 60px; height: 60px; object-fit: cover;" class="rounded border" />
+                            }
+                        </td>
+                        <td>
+                            <strong class="text-dark d-block">@item.Name</strong>
+                            <small class="text-muted text-truncate d-inline-block" style="max-width: 250px;">@item.Description</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-secondary fs-6">@item.CategoryProduct?.Name</span>
+                        </td>
+                        <td class="text-end text-danger fw-bold">
+                            @item.Price.ToString("#,##0") đ
+                        </td>
+                        <td class="text-center">
+                            @if (item.StockQuantity > 0)
+                            {
+                                <span class="text-dark">@item.StockQuantity</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">Hết hàng</span>
+                            }
+                        </td>
+                        <td class="text-center">
+                            <a class="btn btn-warning btn-sm">Sửa</a>
+                            <a class="btn btn-danger btn-sm" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')">Xóa</a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="7" class="text-center text-muted p-4">
+                        Hệ thống chưa có sản phẩm nào.
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

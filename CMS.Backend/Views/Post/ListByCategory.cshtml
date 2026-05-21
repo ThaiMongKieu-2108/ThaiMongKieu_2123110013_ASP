@@ -1,0 +1,79 @@
+﻿@model IEnumerable<CMS.Data.Entities.Post>
+
+@{
+    ViewData["Title"] = "Chuyên mục: " + ViewBag.CategoryName;
+}
+
+<div class="container mt-4">
+    <!-- Tiêu đề trang danh mục -->
+    <div class="border-bottom pb-3 mb-4 d-flex justify-content-between align-items-center">
+        <h1 class="h3 text-success fw-bold m-0">
+            <i class="bi bi-folder2-open me-2"></i>Chuyên mục: @ViewBag.CategoryName
+        </h1>
+        <span class="badge bg-dark fs-6" style="border-radius: 4px; padding: 6px 12px;">@Model.Count() bài viết</span>
+    </div>
+
+    <!-- Trường hợp không có bài viết nào thuộc danh mục này -->
+    @if (!Model.Any())
+    {
+        <div class="alert alert-light text-center py-5 my-4 border shadow-sm" role="alert" style="border-radius: 8px;">
+            <i class="bi bi-folder-x fs-1 text-warning d-block mb-3"></i>
+            <h4 class="fw-bold">Chưa có bài viết nào thuộc chuyên mục này!</h4>
+            <p class="text-muted">Nội dung đang được ban biên tập cập nhật thêm.</p>
+            <a href="/Post" class="btn btn-primary mt-3">Quay lại danh sách bài viết</a>
+        </div>
+    }
+    else
+    {
+        <!-- Danh sách bài viết lọc theo danh mục -->
+        <div class="row">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm border" style="border-radius: 8px; overflow: hidden; border-color: #e2e8f0 !important;">
+                        <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "/images/default-thumbnail.jpg" : item.ImageUrl)"
+                             class="card-img-top"
+                             alt="@item.Title"
+                             style="height: 220px; object-fit: cover;">
+
+                        <div class="card-body d-flex flex-column p-3">
+                            <!-- Badge Tên danh mục cố định -->
+                            <div class="mb-2">
+                                <span class="badge text-white" style="background-color: #198754; font-size: 0.75rem; padding: 5px 8px; border-radius: 4px;">
+                                    @ViewBag.CategoryName
+                                </span>
+                            </div>
+
+                            <h5 class="card-title fw-bold mb-2">
+                                <a href="/Post/Details/@item.Id" class="text-decoration-none" style="color: #198754; font-size: 1.15rem; line-height: 1.4;">
+                                    @item.Title
+                                </a>
+                            </h5>
+
+                            <p class="card-text text-muted flex-grow-1 mb-2" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.9rem; line-height: 1.5; height: 2.7rem;">
+                                @item.Content
+                            </p>
+
+                            <p class="text-muted small mb-3">
+                                <i class="bi bi-calendar-event me-1"></i> Đăng ngày: @item.CreatedDate.ToString("dd/MM/yyyy")
+                            </p>
+
+                            <!-- Nhóm nút hành động đồng bộ -->
+                            <div class="d-flex gap-1 mt-auto">
+                                <a href="/Post/Details/@item.Id" class="btn btn-outline-success btn-sm px-2 py-1" style="border-radius: 4px; font-size: 0.85rem;">
+                                    Xem chi tiết
+                                </a>
+                                <a href="/Post/Edit/@item.Id" class="btn btn-outline-warning btn-sm px-2 py-1" style="border-radius: 4px; font-size: 0.85rem; color: #ffc107; border-color: #ffc107;">
+                                    Sửa
+                                </a>
+                                <a href="/Post/Delete/@item.Id" class="btn btn-outline-danger btn-sm px-2 py-1 d-flex align-items-center gap-1" style="border-radius: 4px; font-size: 0.85rem;">
+                                    <i class="bi bi-trash"></i> Xóa
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

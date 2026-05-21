@@ -5,6 +5,7 @@ ngày tạo: 14-05-2026
 version: 1.0
  */
 using CMS.Data;
+using System.Linq;
 using CMS.Data.Entities; // Thêm using cho các thực thể dữ liệu nếu cần thiết
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore; // Thêm using cho Entity Framework
@@ -30,23 +31,53 @@ namespace CMS.Backend.Controllers
 
         }
         // Hàm Details: Hiển thị chi tiết một bài viết (Bổ sung  khá giỏi)
+        // GET: Post/Details/5
         public IActionResult Details(int id)
         {
-            // Lấy dữ liệu THẬT từ bảng Posts trong SQL Server dựa vào Id truyền vào.
-            // Đồng thời nạp kèm (Include) dữ liệu của danh mục (Category) liên kết để hiển thị ngoài View.
+            // 1. Truy vấn bài viết theo ID
+            // Sử dụng .Include(p => p.Category) để lấy kèm thông tin Danh mục (Join bảng)
             var post = _context.Posts
-                               .Include(p => p.Category)
-                               .FirstOrDefault(p => p.Id == id);
+                .Include(p => p.Category)
+                .FirstOrDefault(p => p.Id == id);
 
-            // Nếu không tìm thấy bài viết nào ứng với Id đó trong Database, trả về trang lỗi 404
+            // 2. Kiểm tra nếu không tìm thấy bài viết (tránh lỗi màn hình trắng)
             if (post == null)
             {
-                return NotFound();
+                return NotFound(); // Trả về trang lỗi 404
             }
 
-            // Truyền đối tượng bài viết thật qua View để hiển thị
+            // 3. Truyền dữ liệu sang View
             return View(post);
         }
 
+        // Tham số 'id' sẽ hứng giá trị từ URL (Ví dụ cấu hình route: /Post/ListByCategory/5)
+        public IActionResult ListByCategory(int? id)
+        {
+            if (id == null)
+            {
+                if (id == null)
+                {
+                    return BadRequest("Vui lòng cung cấp mã danh mục.");
+                }
+            }
+
+            // Lấy thông tin danh mục hiện tại để hiển thị tên danh mục lên tiêu đề trang
+            var category = _context.Categories.Find(id);
+            if (category == null)
+            {
+                return NotFound("Danh mục không tồn tại.");
+            }
+            ViewBag.CategoryName = category.Name; // Gửi tên danh mục sang View
+
+            // Lấy danh sách bài viết thuộc danh mục này (kèm theo thông tin Category)
+            var posts = _context.Posts
+                                .Where(p => p.CategoryId == id)
+                                .Include(p => p.Category) // Join bảng để lấy tên danh mục
+                                .OrderByDescending(p => p.CreatedDate)
+                                .ToList();
+
+            return View(posts);
+
+        }
     }
 }

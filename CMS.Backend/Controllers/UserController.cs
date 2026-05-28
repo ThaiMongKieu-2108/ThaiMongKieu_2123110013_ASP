@@ -8,10 +8,13 @@ using CMS.Data; // Thêm using cho ApplicationDbContext
 using CMS.Data.Entities; // Thêm using cho các thực thể dữ liệu nếu cần thiết
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 namespace CMS.Backend.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class UserController : Controller
     {
+        
         private readonly ApplicationDbContext _context;
 
         // "Tiêm" kết nối Database vào Controller tương tự như CategoryController

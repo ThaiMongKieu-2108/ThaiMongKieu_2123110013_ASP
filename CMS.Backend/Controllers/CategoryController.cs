@@ -8,8 +8,12 @@ version: 1.0
 using CMS.Data.Entities; // Thêm using cho các thực thể dữ liệu nếu cần thiết
 using Microsoft.AspNetCore.Mvc;
 using CMS.Data;
+using Microsoft.AspNetCore.Authorization; 
+
 namespace CMS.Backend.Controllers
 {
+
+    [Authorize]
     public class CategoryController : Controller
     {
      

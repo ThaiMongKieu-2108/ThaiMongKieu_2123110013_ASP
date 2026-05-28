@@ -5,16 +5,20 @@ ngày tạo: 14-05-2026
 version: 1.0
  */
 using CMS.Data;
+
 using CMS.Data.Entities; // Thêm using cho các thực thể dữ liệu nếu cần thiết
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore; // Thêm using cho Entity Framework
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 namespace CMS.Backend.Controllers
 
 {
+    [Authorize]
     public class PostController : Controller
     {
+        
         // Tương tự như CategoryController, chúng ta sẽ "tiêm" ApplicationDbContext để truy cập dữ liệu từ SQL
 
         private readonly ApplicationDbContext _context;

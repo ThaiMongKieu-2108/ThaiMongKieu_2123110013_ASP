@@ -22,9 +22,9 @@ namespace CMS.Data.Entities
         [Required(ErrorMessage = "Tên danh mục không được để trống")] // Ràng buộc bắt buộc, nếu không có sẽ hiển thị thông báo lỗi
         [StringLength(100)] // Ràng buộc độ dài tối đa của tên danh mục là 100 ký tự
         public string Name { get; set; } // Tên danh mục sản phẩm
-
+        public int DisplayOrder { get; set; }
         public string? Description { get; set; } // Mô tả danh mục sản phẩm, có thể để trống (nullable)
-
+        public bool IsActive { get; set; } = true;
         // Quan hệ: Một danh mục có nhiều sản phẩm
         public virtual ICollection<Product>? Products { get; set; } // Danh sách các sản phẩm thuộc danh mục này, có thể để trống (nullable)
 

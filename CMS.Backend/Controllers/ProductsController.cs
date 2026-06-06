@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using CMS.Data;
+using CMS.Data.Entities;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CMS.Data;
 
 namespace CMS.Backend.Controllers
 {
@@ -63,6 +64,79 @@ namespace CMS.Backend.Controllers
 
             // 3.3. Trả về toàn bộ đối tượng sản phẩm (bao gồm cả trường Content chứa mã HTML) kèm mã 200 OK
             return Ok(product);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] Product model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            _context.Products.Add(model);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Thêm sản phẩm thành công",
+                data = model
+            });
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] Product model)
+        {
+            var product = await _context.Products
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (product == null)
+            {
+                return NotFound(new
+                {
+                    message = "Không tìm thấy sản phẩm"
+                });
+            }
+
+            product.Name = model.Name;
+            product.Description = model.Description;
+            product.Price = model.Price;
+            product.StockQuantity = model.StockQuantity;
+            product.ImageUrl = model.ImageUrl;
+            product.CategoryProductId = model.CategoryProductId;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Cập nhật thành công",
+                data = product
+            });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var product = await _context.Products
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (product == null)
+            {
+                return NotFound(new
+                {
+                    message = "Không tìm thấy sản phẩm"
+                });
+            }
+
+            _context.Products.Remove(product);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Xóa thành công"
+            });
         }
     }
 }

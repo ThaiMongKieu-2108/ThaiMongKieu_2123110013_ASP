@@ -10,9 +10,11 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="text-primary fw-bold">Quản Lý Danh Mục Sản Phẩm</h2>
-        <button class="btn btn-success btn-sm">
+        <a asp-controller="CategoryProduct"
+           asp-action="Create"
+           class="btn btn-success btn-sm">
             <i class="bi bi-plus-circle"></i> Thêm danh mục mới
-        </button>
+        </a>
     </div>
 
     <table class="table table-bordered table-striped table-hover shadow-sm align-middle">
@@ -37,8 +39,19 @@
                             @(string.IsNullOrEmpty(item.Description) ? "—" : item.Description)
                         </td>
                         <td class="text-center">
-                            <a class="btn btn-warning btn-sm fw-semibold">Sửa</a>
-                            <a class="btn btn-danger btn-sm fw-semibold" onclick="return confirm('Bạn chắc chắn muốn xóa danh mục này?')">Xóa</a>
+                            <a asp-controller="CategoryProduct"
+                               asp-action="Edit"
+                               asp-route-id="@item.Id"
+                               class="btn btn-warning btn-sm fw-semibold">
+                                Sửa
+                            </a>
+                            <a asp-controller="CategoryProduct"
+                               asp-action="Delete"
+                               asp-route-id="@item.Id"
+                               class="btn btn-danger btn-sm fw-semibold"
+                               onclick="return confirm('Bạn chắc chắn muốn xóa danh mục này?')">
+                                Xóa
+                            </a>
                         </td>
                     </tr>
                 }

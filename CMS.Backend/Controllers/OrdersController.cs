@@ -1,6 +1,7 @@
 ﻿using CMS.Data; // Thay bằng namespace thực tế của anh
 using CMS.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Threading.Tasks;
 
@@ -58,6 +59,55 @@ namespace CMS.Backend.Controllers
                 return StatusCode(500, new { message = "Lỗi xử lý tạo đơn hàng ngầm", detail = ex.Message });
             }
         }
+        [HttpGet("{id}")]
+        public IActionResult GetDetail(int id)
+        {
+            var order = _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                .FirstOrDefault(o => o.Id == id);
+
+            if (order == null)
+            {
+                return NotFound(new
+                {
+                    message = "Không tìm thấy đơn hàng"
+                });
+            }
+
+            return Ok(order);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var order = await _context.Orders
+                .Include(o => o.OrderDetails)
+                .FirstOrDefaultAsync(o => o.Id == id);
+
+            if (order == null)
+            {
+                return NotFound(new
+                {
+                    message = "Không tìm thấy đơn hàng"
+                });
+            }
+
+            if (order.OrderDetails != null)
+            {
+                _context.OrderDetails.RemoveRange(order.OrderDetails);
+            }
+
+            _context.Orders.Remove(order);
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Xóa đơn hàng thành công"
+            });
+        }
     }
 
     // LỚP DTO TRUNG GIAN ĐỂ HỨNG DỮ LIỆU TỪ FRONTEND TRUYỀN LÊN
@@ -66,4 +116,6 @@ namespace CMS.Backend.Controllers
         public int CustomerId { get; set; }
         public string Notes { get; set; }
     }
+
+
 }

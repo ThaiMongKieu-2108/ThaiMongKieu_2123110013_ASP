@@ -1,0 +1,59 @@
+﻿@model CMS.Data.Entities.Product
+
+<h2>Cập nhật sản phẩm</h2>
+
+<form asp-action="Edit" method="post">
+
+    <input asp-for="Id" type="hidden" />
+
+    <div class="mb-3">
+        <label>Tên sản phẩm</label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Mô tả</label>
+        <textarea asp-for="Description"
+                  class="form-control"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label>Giá</label>
+        <input asp-for="Price"
+               class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Tồn kho</label>
+        <input asp-for="StockQuantity"
+               class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Ảnh</label>
+        <input asp-for="ImageUrl"
+               class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Danh mục</label>
+
+        <select asp-for="CategoryProductId"
+                class="form-control">
+
+            @foreach (var item in ViewBag.CategoryProducts)
+            {
+                <option value="@item.Id">
+                    @item.Name
+                </option>
+            }
+
+        </select>
+    </div>
+
+    <button type="submit"
+            class="btn btn-primary">
+        Cập nhật
+    </button>
+
+</form>

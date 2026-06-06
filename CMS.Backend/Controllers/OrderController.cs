@@ -33,5 +33,45 @@ namespace CMS.Controllers
 
             return View(data);
         }
+
+        [HttpGet]
+        public IActionResult Detail(int id)
+        {
+            var order = _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Product)
+                .FirstOrDefault(o => o.Id == id);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            return View(order);
+        }
+
+        public IActionResult Delete(int id)
+        {
+            var order = _context.Orders
+                .Include(o => o.OrderDetails)
+                .FirstOrDefault(o => o.Id == id);
+
+            if (order != null)
+            {
+                // Xóa chi tiết đơn hàng trước
+                if (order.OrderDetails != null)
+                {
+                    _context.OrderDetails.RemoveRange(order.OrderDetails);
+                }
+
+                // Xóa đơn hàng
+                _context.Orders.Remove(order);
+
+                _context.SaveChanges();
+            }
+
+            return RedirectToAction("Index");
+        }
     }
 }

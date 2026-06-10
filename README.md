@@ -197,7 +197,23 @@ Dự án được tổ chức theo kiến trúc **3 lớp (3-Layer Architecture)
   ```csharp
   app.UseCors("AllowAll");
   ```
+## 📅 Buổi 7: Nhập môn ReactJS cho .NET Developer
+* **Mục tiêu đạt được:** Chuyển đổi tư duy từ Render phía Server (Razor View) sang Render phía Client (SPA). Hiểu cách tổ chức cấu trúc giao diện dựa trên các Component độc lập.
+* **Nội dung thực hiện:**
+  * Thiết lập thành công môi trường chạy ReactJS với Node.js (LTS).
+  * Khởi tạo cấu trúc mã nguồn ứng dụng Client sử dụng `create-react-app`.
+  * Làm quen và áp dụng cú pháp JSX, truyền nhận dữ liệu qua `Props`, và quản lý trạng thái giao diện bằng mã nguồn tĩnh thông qua `State`.
+* **Sản phẩm thực hành:** Xây dựng hoàn chỉnh Component "Card" bài viết tĩnh để chuẩn bị cho việc đổ dữ liệu động.
 
+---
+
+## 📅 Buổi 8: Kết nối Web API từ ReactJS & Sử dụng `useEffect`
+* **Mục tiêu đạt được:** Thực hiện mục tiêu cốt lõi của chuyên đề: Kết nối thành công giao diện Single Page Application (SPA) ReactJS với hệ quản trị cơ sở dữ liệu SQL Server thông qua các RESTful Web API.
+* **Nội dung thực hiện:**
+  * Tích hợp và cấu hình thành công thư viện `Axios` để đảm nhận vai trò gửi/nhận HTTP Request.
+  * Xây dựng thực thể `axiosClient` tập trung với cấu hình `baseURL` trỏ trực tiếp về cổng Port của Backend API (`https://localhost:7238/api`), thiết lập thời gian chờ `timeout: 10000` và cấu hình bộ can thiệp phản hồi tập trung (`interceptors.response`).
+  * Ứng dụng vòng đời Component thông qua Hook `useEffect` để kích hoạt cơ chế gọi API tự động ngay sau khi giao diện được Render.
+* **Sản phẩm thực hành:** Đổ dữ liệu động thực tế từ Database lên giao diện ứng dụng ReactJS, hiển thị danh sách bài viết dưới dạng lưới thẻ Card trực quan trên trang chủ.
 ---
 
 # 🚀 Hướng dẫn chạy dự án
@@ -271,5 +287,5 @@ https://localhost:xxxx/swagger
 
 ---
 
-**Cập nhật tiến độ mới nhất:** 28/05/2026
+**Cập nhật tiến độ mới nhất:** 10/06/2026
 **Sinh viên thực hiện:** Thái Mộng Kiều

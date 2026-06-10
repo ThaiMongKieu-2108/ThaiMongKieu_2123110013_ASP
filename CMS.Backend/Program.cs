@@ -18,7 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 // MVC
 builder.Services.AddControllersWithViews();
 
-// Swagger
+// Swagger (ĐƯỢC GIỮ NGUYÊN)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -36,14 +36,15 @@ builder.Services.AddAuthentication(
         options.AccessDeniedPath = "/Account/AccessDenied";
     });
 
-// CORS
+// ---- CẤU HÌNH CORS (Đã cập nhật theo hướng dẫn) ----
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        policy.WithOrigins("http://localhost:3000") // Cho phép ReactJS ở port 3000 gọi tới
+              .AllowAnyHeader()                     // Cho phép mọi loại Header (Content-Type, Authorization...)
+              .AllowAnyMethod()                     // Cho phép mọi phương thức HTTP (GET, POST, PUT, DELETE)
+              .AllowCredentials();                  // Hỗ trợ truyền Cookie/Session nếu cần sau này
     });
 });
 
@@ -53,7 +54,7 @@ var app = builder.Build();
 // 2. CẤU HÌNH MIDDLEWARE
 // ======================================================
 
-// Swagger
+// Swagger (ĐƯỢC GIỮ NGUYÊN)
 app.UseSwagger();
 
 app.UseSwaggerUI(c =>
@@ -74,8 +75,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-// CORS phải đặt sau UseRouting()
-app.UseCors("AllowAll");
+// Kích hoạt CORS đúng vị trí này (Sau UseRouting và trước UseAuthentication/UseAuthorization)
+app.UseCors("AllowReactApp");
 
 // Authentication & Authorization
 app.UseAuthentication();

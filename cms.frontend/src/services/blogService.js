@@ -11,6 +11,10 @@ const blogService = {
     getAllPosts: () => {
         const url = '/Posts'; // Khớp với Route quản lý bài viết ở Backend
         return axiosClient.get(url);
+    },
+    getPostById: (id) => {
+        const url = `/Posts/${id}`;
+        return axiosClient.get(url);
     }
 };
 

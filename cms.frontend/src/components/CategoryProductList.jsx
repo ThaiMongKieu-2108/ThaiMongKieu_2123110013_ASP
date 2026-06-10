@@ -29,9 +29,14 @@ const CategoryProductList = () => {
         fetchCategoryProducts();
     }, []); // Mảng phụ thuộc rỗng [] đảm bảo hàm này không bị gọi lặp vô hạn
 
-    // 4. Xử lý giao diện tạm thời trong lúc hệ thống đang tải dữ liệu
+    // 4. Xử lý giao diện tạm thời (Đã tối ưu thêm Spinner quay của Bootstrap cho đẹp)
     if (loading) {
-        return <div className="text-center my-4">Đang tải danh mục sản phẩm...</div>;
+        return (
+            <div className="text-center my-4">
+                <div className="spinner-border spinner-border-sm text-primary mr-2" role="status"></div>
+                <span className="text-muted small">Đang tải danh mục sản phẩm...</span>
+            </div>
+        );
     }
 
     // 5. Render cấu trúc giao diện danh mục sản phẩm ra HTML
@@ -50,18 +55,22 @@ const CategoryProductList = () => {
                     {categoryProducts.length === 0 ? (
                         <div className="p-4 text-center text-muted">Không có danh mục nào.</div>
                     ) : (
-                        categoryProducts.map((item) => (
-                            <button
-                                key={item.id}
-                                type="button"
-                                className="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-4 py-3 transition-all"
-                                style={{ fontSize: '0.95rem', color: '#495057' }}
-                            >
-                                <span className="font-weight-normal">{item.name}</span>
-                                {/* Icon mũi tên nhỏ tinh tế ở góc phải thay vì chữ 'Xem ngay' bị thô */}
-                                <i className="fa-solid fa-chevron-right text-muted" style={{ fontSize: '0.8rem', opacity: 0.5 }}></i>
-                            </button>
-                        ))
+                        // ĐÃ SỬA: Cấu trúc return tường minh của hàm .map() giúp sửa triệt để lỗi cú pháp ngoặc dòng 66
+                        categoryProducts.map((item) => {
+                            return (
+                                <button
+                                    key={item.id}
+                                    type="button"
+                                    className="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-4 py-3"
+                                    style={{ fontSize: '0.95rem', color: '#495057', transition: 'all 0.2s ease-in-out' }}
+                                    title={item.description || 'Chưa có mô tả cho danh mục này.'}
+                                >
+                                    <span className="font-weight-normal">{item.name}</span>
+                                    {/* Icon mũi tên nhỏ tinh tế ở góc phải */}
+                                    <i className="fa-solid fa-chevron-right text-muted" style={{ fontSize: '0.8rem', opacity: 0.5 }}></i>
+                                </button>
+                            );
+                        })
                     )}
                 </div>
             </div>

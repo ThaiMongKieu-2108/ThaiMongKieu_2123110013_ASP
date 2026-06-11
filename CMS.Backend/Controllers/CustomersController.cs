@@ -3,6 +3,7 @@ using CMS.Data.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 namespace CMS.Backend.Controllers
 {
     [Route("api/[controller]")]
@@ -17,8 +18,56 @@ namespace CMS.Backend.Controllers
         }
 
         // =====================================================
+        // LOGIC ĐĂNG NHẬP (ĐÃ CHUẨN HÓA ROUTE)
+        // POST: api/customers/login
+        // =====================================================
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] LoginModel model)
+        {
+            // Thuật toán kiểm tra Email và Password của bạn từ database
+            var customer = _context.Customers.FirstOrDefault(c => c.Email == model.Email && c.Password == model.Password);
+
+            if (customer == null)
+            {
+                // Trả về mã 400 kèm thông điệp để Frontend hiển thị lên khung thông báo màu đỏ
+                return BadRequest(new { message = "Địa chỉ Email hoặc mật khẩu không chính xác!" });
+            }
+
+            return Ok(customer);
+        }
+
+        // =====================================================
+        // LOGIC ĐĂNG KÝ TÀI KHOẢN (ĐÃ BỔ SUNG KHỚP FRONTEND)
+        // POST: api/customers/register
+        // =====================================================
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] Customer model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            // Kiểm tra trùng lặp email trước khi thêm mới
+            var isExist = await _context.Customers.AnyAsync(c => c.Email == model.Email);
+            if (isExist)
+            {
+                return BadRequest(new { message = "Tài khoản Email này đã tồn tại trên hệ thống!" });
+            }
+
+            _context.Customers.Add(model);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                message = "Đăng ký tài khoản khách hàng thành công",
+                data = model
+            });
+        }
+
+        // =====================================================
         // GET ALL
-        // api/customers
+        // GET: api/customers
         // =====================================================
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -32,7 +81,7 @@ namespace CMS.Backend.Controllers
 
         // =====================================================
         // GET DETAIL
-        // api/customers/1
+        // GET: api/customers/1
         // =====================================================
         [HttpGet("{id}")]
         public async Task<IActionResult> GetDetail(int id)
@@ -42,41 +91,15 @@ namespace CMS.Backend.Controllers
 
             if (customer == null)
             {
-                return NotFound(new
-                {
-                    message = "Không tìm thấy khách hàng"
-                });
+                return NotFound(new { message = "Không tìm thấy khách hàng" });
             }
 
             return Ok(customer);
         }
 
         // =====================================================
-        // CREATE
-        // POST api/customers
-        // =====================================================
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Customer model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            _context.Customers.Add(model);
-
-            await _context.SaveChangesAsync();
-
-            return Ok(new
-            {
-                message = "Thêm khách hàng thành công",
-                data = model
-            });
-        }
-
-        // =====================================================
         // UPDATE
-        // PUT api/customers/1
+        // PUT: api/customers/1
         // =====================================================
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] Customer model)
@@ -86,10 +109,7 @@ namespace CMS.Backend.Controllers
 
             if (customer == null)
             {
-                return NotFound(new
-                {
-                    message = "Không tìm thấy khách hàng"
-                });
+                return NotFound(new { message = "Không tìm thấy khách hàng" });
             }
 
             customer.FullName = model.FullName;
@@ -109,7 +129,7 @@ namespace CMS.Backend.Controllers
 
         // =====================================================
         // DELETE
-        // DELETE api/customers/1
+        // DELETE: api/customers/1
         // =====================================================
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
@@ -119,20 +139,20 @@ namespace CMS.Backend.Controllers
 
             if (customer == null)
             {
-                return NotFound(new
-                {
-                    message = "Không tìm thấy khách hàng"
-                });
+                return NotFound(new { message = "Không tìm thấy khách hàng" });
             }
 
             _context.Customers.Remove(customer);
-
             await _context.SaveChangesAsync();
 
-            return Ok(new
-            {
-                message = "Xóa khách hàng thành công"
-            });
+            return Ok(new { message = "Xóa khách hàng thành công" });
         }
+    }
+
+    // Model DTO trung chuyển dữ liệu login sạch
+    public class LoginModel
+    {
+        public string Email { get; set; }
+        public string Password { get; set; }
     }
 }

@@ -1,68 +1,90 @@
 ﻿import React from 'react';
-import CategoryProductList from './components/CategoryProductList'; // Hoặc CategoryList tùy bạn đặt tên
-import ProductList from './components/ProductList';
-import PostList from './components/PostList';
-import BlogCategoryList from './components/BlogCategoryList';
-import OrderList from './components/OrderList';
-import OrderDetailView from './components/OrderDetailView';
-import './App.css'; // File chứa các style tùy biến riêng của dự án
+// Import các thành phần lõi của thư viện điều hướng đường dẫn
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { CartProvider } from './context/CartContext';
 
+// 1. IMPORT CÁC COMPONENT TOÀN CỤC (LAYOUT CHUNG)
+import Header from './components/Header';
+import Footer from './components/Footer';
+
+
+// 2. IMPORT CÁC TRANG CHỨC NĂNG (GIAO DIỆN CHÍNH)
+import Home from './pages/home/index';
+import Shop from './pages/shop/index';                  // Tự động nạp file pages/shop/index.jsx
+import ProductDetail from './pages/product-detail'; // Tự động nạp file pages/product-detail/index.jsx
+import Blog from './pages/blog/index';          // Vào thẳng file index.jsx nằm trong thư mục blog
+import BlogDetail from './pages/blog/BlogDetail';
+import Cart from './pages/cart/index';                  // Tự động nạp file pages/cart/index.jsx
+import Checkout from './pages/checkout/index';          // Tự động nạp file pages/checkout/index.jsx
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import About from './pages/about/index';
 function App() {
     return (
-        <div className="container mt-5">
-            {/* ==================== HEADER ==================== */}
-            <header className="pb-3 mb-4 border-bottom d-flex justify-content-between align-items-center">
-                <span className="fs-4 font-weight-bold text-dark text-uppercase">
-                    👗 Fashion Boutique - Hệ Thống Quản Trị Nội Dung & Bán Hàng
-                </span>
-                <span className="badge badge-success px-3 py-2 d-none d-md-inline-block">
-                    Học Phần Chuyên Đề ASP.NET + ReactJS
-                </span>
-            </header>
+        <CartProvider> 
+        <Router>
+            <div className="d-flex flex-column min-vh-100 bg-light">
 
-            {/* ==================== KHU VỰC 1: SHOPPING (BÁN HÀNG) ==================== */}
-            <div className="row mb-5">
-                {/* Cột trái: Bộ lọc danh mục sản phẩm thời trang */}
-                <div className="col-md-4 mb-4">
-                    <CategoryProductList />
-                </div>
-                {/* Cột phải: Danh sách sản phẩm thực tế */}
-                <div className="col-md-8 mb-4">
-                    <h4 className="mb-4 text-uppercase text-secondary font-weight-bold border-bottom pb-2">
-                        🛍️ Bộ sưu tập mới nhất
-                    </h4>
-                    <ProductList />
-                </div>
-            </div>
-            {/* ==================== KHU VỰC ĐƠN HÀNG MỚI THÊM ĐỂ TEST ==================== */}
-            <div className="row mb-5">
-                {/* Hiển thị bảng danh sách các đơn hàng của bảng Orders */}
-                <div className="col-md-7 mb-4">
-                    <OrderList />
-                </div>
-                {/* Hiển thị danh sách các sản phẩm mua cụ thể thuộc bảng OrderDetails */}
-                <div className="col-md-5 mb-4">
-                    <OrderDetailView orderId={1} />
-                </div>
-            </div>
-            {/* ==================== KHU VỰC 2: BLOG & TIN TỨC (QUẢN TRỊ NỘI DUNG) ==================== */}
-            <div className="row mt-5">
-                {/* Cột trái: Bộ lọc danh mục bài viết tin tức (Phần bài tập tự làm từ Đoạn 2) */}
-                <div className="col-md-4 mb-4">
-                    <BlogCategoryList />
-                </div>
-                {/* Cột phải: Danh sách các bài viết tin tức lấy real-time bằng useEffect */}
-                <div className="col-md-8 mb-4">
-                    <PostList />
-                </div>
-            </div>
 
-            {/* ==================== FOOTER ==================== */}
-            <footer className="pt-3 mt-5 text-muted border-top text-center small">
-                <p>© 2026 - Đồ án thực hành phân tầng ASP.NET Core Web API kết hợp ReactJS Client-side</p>
-            </footer>
-        </div>
+
+
+                {/* KHU VỰC NỘI DUNG ĐỘNG (Thay đổi ruột tùy theo URL trên thanh địa chỉ) */}
+                    <main className="flex-grow-1">
+                        <Header />
+                    <Routes>
+                        {/* Cấu hình Trang chủ - Khớp hoàn toàn với địa chỉ "/home" */}
+                        <Route path="/" element={<Home />} />
+
+
+                        {/* Cấu hình Trang Cửa hàng - Địa chỉ "/shop" */}
+                        <Route path="/shop" element={<Shop />} />
+
+
+                        {/* Cấu hình Trang Chi tiết sản phẩm - Sử dụng tham số động ":id" */}
+                        {/* Ví dụ khi vào link: /product/5 -> useParams() sẽ lấy được id = 5 */}
+                        <Route path="/product/:id" element={<ProductDetail />} />
+
+
+                        {/* Cấu hình Trang Danh sách tin tức - Địa chỉ "/blog" */}
+                        <Route path="/blog" element={<Blog />} />
+
+
+                        {/* Cấu hình Trang Chi tiết bài viết - Địa chỉ "/blog/:id" */}
+                        <Route path="/blog/:id" element={<BlogDetail />} />
+
+
+                        {/* Cấu hình Trang Giỏ hàng cá nhân - Địa chỉ "/cart" */}
+                        <Route path="/cart" element={<Cart />} />
+
+
+                        {/* Cấu hình Trang Điền thông tin thanh toán - Địa chỉ "/checkout" */}
+                        <Route path="/checkout" element={<Checkout />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
+                            <Route path="/about" element={<About />} />
+                        {/* XỬ LÝ KỊCH BẢN TRANG LỖI 404 (Khi sinh viên gõ sai URL) */}
+                        <Route path="*" element={
+                            <div className="container text-center py-5 my-5">
+                                <img
+                                    src="https://cdn-icons-png.flaticon.com/512/580/580185.png"
+                                    alt="404"
+                                    className="mb-4"
+                                    style={{ width: '100px', opacity: 0.6 }}
+                                />
+                                <h2 className="fw-bold text-secondary">404 - KHÔNG TÌM THẤY TRANG</h2>
+                                <p className="text-muted">Đường dẫn bạn truy cập không tồn tại trên hệ thống ThaiCMS.</p>
+                                <a href="/" className="btn btn-dark btn-sm mt-2">Quay lại Trang Chủ</a>
+                            </div>
+                        } />
+                    </Routes>
+                </main>
+                    <Footer />
+
+            </div>
+            </Router>
+        </CartProvider>
     );
 }
+
 
 export default App;

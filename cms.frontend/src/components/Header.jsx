@@ -1,14 +1,20 @@
-﻿import React, { useState, useEffect, useContext } from 'react';
+﻿import React, { useState, useEffect, useContext, useRef } from 'react';
 // Import thành phần Link để chuyển trang mượt mà không bị tải lại trang (Hard-Reload)
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
+
 function Header() {
     // Dùng hook useLocation của react-router-dom để bắt đường dẫn URL hiện tại
     const location = useLocation();
     const navigate = useNavigate();
     const { getCartCount } = useContext(CartContext);
+
     // State quản lý thông tin khách hàng đăng nhập hệ thống
     const [currentCustomer, setCurrentCustomer] = useState(null);
+
+    // TỰ QUẢN LÝ ĐÓNG MỞ DROPDOWN TRONG REACT
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const dropdownRef = useRef(null);
 
     // Tự động kiểm tra trạng thái đăng nhập từ Local Storage khi Header nạp lên màn hình
     useEffect(() => {
@@ -22,6 +28,24 @@ function Header() {
             }
         }
     }, []);
+
+    // Đóng dropdown khi bấm ra ngoài vùng menu (Click Outside)
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsMenuOpen(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    // Tự động đóng dropdown khi chuyển trang
+    useEffect(() => {
+        setIsMenuOpen(false);
+    }, [location]);
 
     // Hàm xử lý hành động Đăng xuất tài khoản
     const handleLogout = (e) => {
@@ -69,20 +93,50 @@ function Header() {
                     {/* Bên phải: Xử lý trạng thái Đăng nhập / Đăng ký hoặc Đăng xuất linh động */}
                     <div className="top-bar-right d-flex align-items-center">
                         {currentCustomer ? (
-                            // NẾU ĐÃ ĐĂNG NHẬP THÀNH CÔNG: Hiện tên và nút Đăng xuất độc quyền
-                            <div className="customer-logged-in">
-                                <span className="text-white font-weight-bold mr-3">
+                            // NẾU ĐÃ ĐĂNG NHẬP THÀNH CÔNG: Điều khiển đóng mở bằng State của React thông qua ref
+                            <div className="dropdown customer-logged-in position-relative" ref={dropdownRef}>
+                                <button
+                                    className="btn btn-link text-white font-weight-bold text-decoration-none dropdown-toggle p-0 border-0"
+                                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                    type="button"
+                                    style={{ fontSize: '13px', verticalAlign: 'baseline shadow: none' }}
+                                >
                                     <i className="fas fa-user-circle mr-1" style={{ color: '#11CAA0' }}></i>
                                     Chào, {currentCustomer.fullName || currentCustomer.Email || 'Khách hàng'}
-                                </span>
-                                <a
-                                    href="#logout"
-                                    onClick={handleLogout}
-                                    className="text-danger font-weight-bold text-decoration-none bg-white px-2 py-0.5 rounded"
-                                    style={{ fontSize: '12px' }}
+                                </button>
+
+                                {/* Menu cấp 2 kiểm soát hiển thị bằng class 'show' của Bootstrap */}
+                                <div
+                                    className={`dropdown-menu dropdown-menu-right mt-2 p-2 border-0 shadow-lg ${isMenuOpen ? 'show' : ''}`}
+                                    style={{
+                                        borderRadius: '8px',
+                                        minWidth: '200px',
+                                        right: 0,
+                                        left: 'auto'
+                                    }}
                                 >
-                                    <i className="fas fa-sign-out-alt mr-1"></i> Đăng xuất
-                                </a>
+                                    <Link to="/profile" className="dropdown-item py-2 d-flex align-items-center text-secondary font-weight-bold" style={{ fontSize: '14px' }}>
+                                        <i className="text-primary fas fa-id-card mr-2" style={{ fontSize: '16px', width: '20px' }}></i>
+                                        Hồ sơ cá nhân
+                                    </Link>
+
+                                    <Link to="/my-orders" className="dropdown-item py-2 d-flex align-items-center text-secondary font-weight-bold" style={{ fontSize: '14px' }}>
+                                        <i className="text-success fas fa-box-open mr-2" style={{ fontSize: '16px', width: '20px' }}></i>
+                                        Đơn hàng của tôi
+                                    </Link>
+
+                                    <div className="dropdown-divider"></div>
+
+                                    <a
+                                        href="#logout"
+                                        onClick={handleLogout}
+                                        className="dropdown-item py-2 d-flex align-items-center text-danger font-weight-bold"
+                                        style={{ fontSize: '14px' }}
+                                    >
+                                        <i className="fas fa-sign-out-alt mr-2" style={{ fontSize: '16px', width: '20px' }}></i>
+                                        Đăng xuất
+                                    </a>
+                                </div>
                             </div>
                         ) : (
                             // NẾU CHƯA ĐĂNG NHẬP: Hiện cụm liên kết mặc định ban đầu
@@ -115,7 +169,7 @@ function Header() {
                             </Link>
                         </div>
 
-                        {/* 2. Cột Ô Tìm Kiếm Sản Phẩm (Sử dụng border-right-0 chuẩn v4) */}
+                        {/* 2. Cột Ô Tìm Kiếm Sản Phẩm */}
                         <div className="col-md-6 d-none d-md-block">
                             <form className="input-group" onSubmit={handleSearchSubmit}>
                                 <input
@@ -140,13 +194,12 @@ function Header() {
                             </form>
                         </div>
 
-                        {/* 3. Cột Giỏ Hàng Nhanh (Sử dụng text-right chuẩn v4) */}
+                        {/* 3. Cột Giỏ Hàng Nhanh */}
                         <div className="col-md-3 col-6 text-right">
                             <Link to="/cart" className="btn position-relative p-2" style={{ color: '#005088', fontSize: '22px' }}>
                                 <i className="fas fa-shopping-bag"></i>
-                                {/* Vòng tròn badge đỏ số lượng giỏ hàng sống */}
                                 <span className="badge badge-pill position-absolute" >
-                                    {getCartCount()} {/* <-- HIỂN THỊ SỐ SỐNG THỜI GIAN THỰC */}
+                                    {getCartCount()}
                                 </span>
                             </Link>
                         </div>
@@ -161,10 +214,9 @@ function Header() {
             <div className="main-navigation bg-white py-2">
                 <div className="container">
                     <nav className="navbar navbar-expand p-0">
-                        {/* Ứng dụng hệ lớp nav của Bootstrap 4 để quản lý danh sách menu dọc/ngang */}
                         <ul className="navbar-nav w-100">
 
-                            {/* Menu 1: Trang Chủ (Sử dụng mr-4 để thay thế thuộc tính gap-2 của v5) */}
+                            {/* Menu 1: Trang Chủ */}
                             <li className="nav-item mr-4">
                                 <Link to="/" className={`nav-link p-0 text-decoration-none ${isActive('/')}`} style={{ transition: 'all 0.2s' }}>
                                     Trang Chủ

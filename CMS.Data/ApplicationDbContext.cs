@@ -30,6 +30,7 @@ namespace CMS.Data
         public DbSet<Customer> Customers { get; set; } // Bảng khách hàng
         public DbSet<Order> Orders { get; set; } // Bảng đơn hàng
         public DbSet<OrderDetail> OrderDetails { get; set; } // Bảng chi tiết đơn hàng
+        public DbSet<Banner> Banners { get; set; }
 
     }
 }

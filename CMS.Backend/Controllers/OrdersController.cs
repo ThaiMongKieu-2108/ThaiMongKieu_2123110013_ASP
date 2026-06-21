@@ -1,8 +1,8 @@
 ﻿/*
 sinh viên: Thái Mộng Kiều
 mã số: 2123110013
-ngày cập nhật: 10-06-2026
-version: 1.1
+ngày cập nhật: 22-06-2026
+version: 1.6 (Đảm bảo lưu đồng thời Orders và OrderDetails từ ReactJS)
  */
 
 using CMS.Data;
@@ -27,33 +27,26 @@ namespace CMS.Backend.Controllers
             _context = context;
         }
 
-        /// <summary>
-        /// 1. API: Lấy danh sách lịch sử đơn hàng của một khách hàng cụ thể
-        /// Đường dẫn: GET https://localhost:7238/api/Orders/customer/{customerId}
-        /// </summary>
+        // 1. API: Lấy đơn hàng theo CustomerId phục vụ Frontend
         [HttpGet("customer/{customerId}")]
         public async Task<IActionResult> GetByCustomer(int customerId)
         {
-            // Tìm các đơn hàng thuộc về CustomerId này và sắp xếp đơn mới nhất lên đầu 
             var orders = await _context.Orders
                 .Where(o => o.CustomerId == customerId)
                 .OrderByDescending(o => o.OrderDate)
                 .Select(o => new {
-                    o.Id,
-                    o.OrderDate,
-                    o.CustomerId,
-                    o.Status,
-                    o.Notes
+                    id = o.Id,
+                    orderDate = o.OrderDate,
+                    customerId = o.CustomerId,
+                    status = o.Status,
+                    notes = o.Notes
                 })
                 .ToListAsync();
 
             return Ok(orders);
         }
 
-        /// <summary>
-        /// 2. API: Lấy chi tiết hóa đơn kèm danh sách sản phẩm đã mua
-        /// Đường dẫn: GET https://localhost:7238/api/Orders/{id}
-        /// </summary>
+        // 2. API: Lấy chi tiết đơn hàng phục vụ ô xem nhanh ở Frontend
         [HttpGet("{id}")]
         public async Task<IActionResult> GetDetail(int id)
         {
@@ -62,96 +55,105 @@ namespace CMS.Backend.Controllers
                     .ThenInclude(od => od.Product)
                 .FirstOrDefaultAsync(o => o.Id == id);
 
-            if (order == null)
-            {
-                return NotFound(new { message = "Không tìm thấy đơn hàng" });
-            }
+            if (order == null) return NotFound(new { message = "Không tìm thấy đơn hàng" });
 
-            // Định dạng lại cấu trúc JSON trả về để Frontend bóc tách dễ dàng, tránh lỗi tham chiếu vòng lập
             return Ok(new
             {
                 id = order.Id,
                 notes = order.Notes,
+                orderDate = order.OrderDate,
+                status = order.Status,
                 orderDetails = order.OrderDetails.Select(d => new {
                     id = d.Id,
                     productId = d.ProductId,
                     quantity = d.Quantity,
                     unitPrice = d.UnitPrice,
-                    // Lấy kèm tên sản phẩm để hiển thị lên hóa đơn Frontend
                     productName = d.Product != null ? d.Product.Name : "Sản phẩm không xác định"
-                })
+                }).ToList()
             });
         }
 
-        /// <summary>
-        /// 3. API: Tiếp nhận đơn đặt hàng từ giỏ hàng FrontEnd gửi lên
-        /// Đường dẫn: POST https://localhost:7238/api/Orders
-        /// </summary>
+        // 3. API: Tiếp nhận đơn từ Checkout và thực hiện trừ kho + lưu chi tiết đơn hàng
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] OrderInputDTO input)
         {
-            if (input == null)
+            if (input == null || input.CartItems == null || !input.CartItems.Any())
             {
-                return BadRequest(new { message = "Dữ liệu đơn hàng không hợp lệ" });
+                return BadRequest(new { message = "Dữ liệu giỏ hàng rỗng." });
             }
 
+            using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
                 var newOrder = new Order
                 {
                     OrderDate = DateTime.Now,
                     CustomerId = input.CustomerId,
-                    Status = 0,               // 0: Mặc định đơn hàng mới ở trạng thái "Chờ xử lý" 
-                    Notes = input.Notes
+                    Status = 0,
+                    Notes = input.Notes,
+                    OrderDetails = new List<OrderDetail>() // Khởi tạo mảng con
                 };
+
+                foreach (var item in input.CartItems)
+                {
+                    var product = await _context.Products.FirstOrDefaultAsync(p => p.Id == item.ProductId);
+                    if (product == null)
+                    {
+                        return BadRequest(new { message = $"Sản phẩm #{item.ProductId} không tồn tại." });
+                    }
+
+                    if (product.StockQuantity < item.Quantity)
+                    {
+                        return BadRequest(new { message = $"Sản phẩm '{product.Name}' không đủ hàng." });
+                    }
+
+                    // Khấu trừ kho hàng
+                    product.StockQuantity -= item.Quantity;
+
+                    // Gán trực tiếp phần tử con vào đơn hàng cha để EF Core tự gán OrderId sau khi SaveChanges
+                    newOrder.OrderDetails.Add(new OrderDetail
+                    {
+                        ProductId = item.ProductId,
+                        Quantity = item.Quantity,
+                        UnitPrice = product.Price
+                    });
+                }
 
                 _context.Orders.Add(newOrder);
                 await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
 
-                return StatusCode(201, new
-                {
-                    message = "Đặt hàng thành công!",
-                    orderId = newOrder.Id
-                });
+                return StatusCode(201, new { message = "Đặt hàng thành công và hệ thống đã cập nhật giảm kho hàng!", orderId = newOrder.Id });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Lỗi xử lý tạo đơn hàng ngầm", detail = ex.Message });
+                await transaction.RollbackAsync();
+                return StatusCode(500, new { message = "Lỗi tạo đơn hàng ngầm", detail = ex.Message });
             }
         }
 
-        /// <summary>
-        /// 4. API: Hủy/Xóa đơn hàng hệ thống
-        /// Đường dẫn: DELETE https://localhost:7238/api/Orders/{id}
-        /// </summary>
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var order = await _context.Orders
-                .Include(o => o.OrderDetails)
-                .FirstOrDefaultAsync(o => o.Id == id);
-
-            if (order == null)
-            {
-                return NotFound(new { message = "Không tìm thấy đơn hàng" });
-            }
-
-            if (order.OrderDetails != null)
-            {
-                _context.OrderDetails.RemoveRange(order.OrderDetails);
-            }
-
+            var order = await _context.Orders.Include(o => o.OrderDetails).FirstOrDefaultAsync(o => o.Id == id);
+            if (order == null) return NotFound();
+            if (order.OrderDetails != null) _context.OrderDetails.RemoveRange(order.OrderDetails);
             _context.Orders.Remove(order);
             await _context.SaveChangesAsync();
-
-            return Ok(new { message = "Xóa đơn hàng thành công" });
+            return Ok(new { message = "Xóa thành công" });
         }
     }
 
-    // LỚP DTO TRUNG GIAN ĐỂ HỨNG DỮ LIỆU TỪ FRONTEND TRUYỀN LÊN
     public class OrderInputDTO
     {
         public int CustomerId { get; set; }
         public string Notes { get; set; }
+        public List<CartItemDTO> CartItems { get; set; }
+    }
+
+    public class CartItemDTO
+    {
+        public int ProductId { get; set; }
+        public int Quantity { get; set; }
     }
 }

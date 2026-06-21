@@ -3,15 +3,14 @@ import axiosClient from '../api/axiosClient';
 
 const productService = {
     /**
-     * 1. Lấy danh sách toàn bộ sản phẩm thời trang (hoặc theo bộ lọc)
+     * 1. Lấy danh sách sản phẩm (Hỗ trợ lọc động nâng cao)
+     * Nhận tham số filters từ ReactJS (ví dụ: { categoryProductId: 1, minPrice: 100, keyword: 'váy' })
      * API Endpoint: GET https://localhost:xxxx/api/Products
      */
-    getAllProducts: async () => {
+    getAllProducts: async (filters = {}) => {
         try {
-            // Thực hiện gọi API GET để lấy danh sách sản phẩm
-            const response = await axiosClient.get('/Products');
-
-            // Trả về mảng dữ liệu sản phẩm
+            // Truyền filters vào mục params để Axios tự băm thành Query String (?categoryProductId=1...)
+            const response = await axiosClient.get('/Products', { params: filters });
             return response.data || response;
         } catch (error) {
             console.error("Lỗi API getAllProducts:", error);
@@ -25,7 +24,6 @@ const productService = {
      */
     getProductCategories: async () => {
         try {
-            // Thực hiện gọi API lấy danh mục, truyền query type=product nếu cần phân biệt với blog
             const response = await axiosClient.get('/Categories?type=product');
             return response.data || response;
         } catch (error) {
@@ -45,6 +43,48 @@ const productService = {
         } catch (error) {
             console.error(`Lỗi API getProductById với ID ${id}:`, error);
             return null;
+        }
+    },
+
+    /**
+     * 4. Thêm mới một sản phẩm (Dành cho trang Admin / Quản lý)
+     * API Endpoint: POST https://localhost:xxxx/api/Products
+     */
+    createProduct: async (productData) => {
+        try {
+            const response = await axiosClient.post('/Products', productData);
+            return response.data || response;
+        } catch (error) {
+            console.error("Lỗi API createProduct:", error);
+            throw error; // Ném lỗi ra ngoài để Form giao diện bắt được và hiển thị thông báo lỗi (Validation)
+        }
+    },
+
+    /**
+     * 5. Cập nhật thông tin sản phẩm theo ID
+     * API Endpoint: PUT https://localhost:xxxx/api/Products/{id}
+     */
+    updateProduct: async (id, productData) => {
+        try {
+            const response = await axiosClient.put(`/Products/${id}`, productData);
+            return response.data || response;
+        } catch (error) {
+            console.error(`Lỗi API updateProduct với ID ${id}:`, error);
+            throw error;
+        }
+    },
+
+    /**
+     * 6. Xóa sản phẩm theo ID
+     * API Endpoint: DELETE https://localhost:xxxx/api/Products/{id}
+     */
+    deleteProduct: async (id) => {
+        try {
+            const response = await axiosClient.delete(`/Products/${id}`);
+            return response.data || response;
+        } catch (error) {
+            console.error(`Lỗi API deleteProduct với ID ${id}:`, error);
+            throw error;
         }
     }
 };

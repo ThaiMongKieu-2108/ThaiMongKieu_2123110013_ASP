@@ -1,106 +1,120 @@
 ﻿import React, { useState, useEffect } from 'react';
-// ĐÃ ĐỒNG BỘ: Import đúng file dịch vụ lấy danh mục sản phẩm của bạn
+// 1. Import service lấy danh mục sản phẩm từ Backend
 import categoryProductService from '../../services/categoryProductService';
 
-function ShopSidebar({ onCategoryChange, onPriceChange }) {
+
+function ShopSidebar({ activeCategory, minPrice, maxPrice, onFilterChange }) {
+    // 2. State lưu trữ danh sách danh mục nạp từ Database
     const [categories, setCategories] = useState([]);
-    const [activeCatId, setActiveCatId] = useState(null);
-    const [minPrice, setMinPrice] = useState('');
-    const [maxPrice, setMaxPrice] = useState('');
+    const [loading, setLoading] = useState(true);
 
-    // Hàm gọi API lấy danh mục từ bảng CategoryProduct
+
+    // 3. useEffect gọi API ngay khi component vừa nạp lên màn hình
     useEffect(() => {
-        const loadCategories = async () => {
+        const fetchCategories = async () => {
             try {
-                // Gọi chính xác hàm dịch vụ của bạn
-                const res = await categoryProductService.getAllCategoryProducts();
-
-                if (res) {
-                    // Kiểm tra cấu trúc: Nếu axiosClient của bạn trả về trực tiếp mảng hoặc bọc trong đối tượng .data
-                    const categoryList = Array.isArray(res) ? res : (res.data || []);
-                    setCategories(categoryList);
-                }
+                setLoading(true);
+                const response = await categoryProductService.getAllCategoryProducts();
+                // Phản hồi từ axiosClient thường trả về trực tiếp data hoặc qua .data
+                setCategories(response.data || response);
             } catch (error) {
-                console.error("Lỗi khi kết nối API lấy danh mục sản phẩm:", error);
+                console.error("Lỗi nạp danh mục sản phẩm:", error);
+            } finally {
+                setLoading(false);
             }
         };
-        loadCategories();
+        fetchCategories();
     }, []);
 
-    const handleCategoryClick = (id) => {
-        setActiveCatId(id);
-        onCategoryChange(id); // Kích hoạt bộ lọc sản phẩm động ở trang Shop cha
-    };
-
-    // Hàm kích hoạt lọc giá khi người dùng điền số tiền
-    const handleApplyPrice = (e) => {
-        e.preventDefault();
-        const min = minPrice === '' ? 0 : Number(minPrice);
-        const max = maxPrice === '' ? 99999999 : Number(maxPrice);
-        onPriceChange({ min, max });
-    };
 
     return (
-        <div className="card border-0 shadow-sm p-3" style={{ borderRadius: '12px' }}>
-            {/* Bộ lọc danh mục dọc */}
-            <h6 className="font-weight-bold text-dark mb-3 pb-2 border-bottom" style={{ letterSpacing: '0.5px' }}>
-                DANH MỤC SẢN PHẨM
+        <div className="card p-3 shadow-sm border-0" style={{ borderRadius: '15px' }}>
+            <h6 className="font-weight-bold text-uppercase mb-3" style={{ color: '#005088', letterSpacing: '1px' }}>
+                <i className="fas fa-filter mr-2"></i>Danh Mục
             </h6>
+
+
+            {/* KHỐI DANH SÁCH DANH MỤC ĐỘNG */}
             <div className="list-group list-group-flush mb-4">
-                {/* Nút chọn mặc định: Xem tất cả sản phẩm */}
+                {/* Nút "Tất cả sản phẩm" luôn nằm trên cùng */}
                 <button
-                    onClick={() => handleCategoryClick(null)}
-                    className={`list-group-item list-group-item-action border-0 px-2 py-2 rounded text-left ${activeCatId === null ? 'font-weight-bold text-white' : 'text-secondary'}`}
-                    style={activeCatId === null ? { backgroundColor: '#11CAA0', transition: '0.3s' } : { backgroundColor: 'transparent' }}
+                    className={`list-group-item list-group-item-action border-0 px-2 d-flex align-items-center ${activeCategory === null ? 'text-primary font-weight-bold bg-light' : 'text-secondary'}`}
+                    onClick={() => onFilterChange({ categoryProductId: null })}
+                    style={{ borderRadius: '8px', transition: 'all 0.2s' }}
                 >
-                    <i className="fas fa-th-large mr-2"></i> Tất cả sản phẩm
+                    <i className={`fas fa-chevron-right mr-2 small ${activeCategory === null ? 'opacity-100' : 'opacity-0'}`}></i>
+                    Tất cả sản phẩm
                 </button>
 
-                {/* Vòng lặp map() lấy chuẩn xác bảng dữ liệu từ Backend */}
-                {categories.map((cat) => (
-                    <button
-                        key={cat.id} // Khóa chính từ bảng dữ liệu của bạn
-                        onClick={() => handleCategoryClick(cat.id)}
-                        className={`list-group-item list-group-item-action border-0 px-2 py-2 mt-1 rounded text-left ${activeCatId === cat.id ? 'font-weight-bold text-white' : 'text-secondary'}`}
-                        style={activeCatId === cat.id ? { backgroundColor: '#11CAA0', transition: '0.3s' } : { backgroundColor: 'transparent' }}
-                    >
-                        <i className="fas fa-chevron-right mr-2" style={{ fontSize: '11px', opacity: 0.7 }}></i>
-                        {cat.name} {/* Tên danh mục hiển thị (ví dụ: Laptop, Thiết bị âm thanh,...) */}
-                    </button>
-                ))}
+
+                {/* Loading state cho sidebar */}
+                {loading ? (
+                    <div className="text-center py-3">
+                        <div className="spinner-border spinner-border-sm text-primary" role="status"></div>
+                    </div>
+                ) : (
+                    // Hiển thị danh sách danh mục nạp từ SQL Server
+                    categories.map(cat => (
+                        <button
+                            key={cat.id}
+                            className={`list-group-item list-group-item-action border-0 px-2 d-flex align-items-center ${activeCategory === cat.id ? 'text-primary font-weight-bold bg-light' : 'text-secondary'}`}
+                            onClick={() => onFilterChange({ categoryProductId: cat.id })}
+                            style={{ borderRadius: '8px', transition: 'all 0.2s', fontSize: '15px' }}
+                        >
+                            <i className={`fas fa-chevron-right mr-2 small ${activeCategory === cat.id ? 'opacity-100' : 'opacity-0'}`}></i>
+                            {cat.name}
+                        </button>
+
+                    ))
+                )}
             </div>
 
-            {/* Bộ lọc khoảng giá thông minh */}
-            <h6 className="font-weight-bold text-dark mb-3 pb-2 border-bottom" style={{ letterSpacing: '0.5px' }}>
-                LỌC THEO GIÁ (VNĐ)
+
+            {/* KHỐI LỌC THEO KHOẢNG GIÁ */}
+            <h6 className="font-weight-bold text-uppercase mb-3" style={{ color: '#005088', letterSpacing: '1px' }}>
+                <i className="fas fa-tag mr-2"></i>Khoảng Giá (đ)
             </h6>
-            <form onSubmit={handleApplyPrice}>
-                <div className="form-group mb-2">
+            <div className="price-filter-inputs">
+                <div className="input-group input-group-sm mb-2">
+                    <div className="input-group-prepend">
+                        <span className="input-group-text bg-white border-right-0 text-muted">Từ</span>
+                    </div>
                     <input
                         type="number"
-                        className="form-control form-control-sm"
-                        placeholder="Từ giá (Min)"
+                        className="form-control border-left-0"
+                        placeholder="0"
                         value={minPrice}
-                        onChange={(e) => setMinPrice(e.target.value)}
-                        style={{ borderRadius: '6px' }}
+                        onChange={(e) => onFilterChange({ minPrice: e.target.value })}
+                        style={{ outline: 'none', boxShadow: 'none' }}
                     />
                 </div>
-                <div className="form-group mb-3">
+                <div className="input-group input-group-sm">
+                    <div className="input-group-prepend">
+                        <span className="input-group-text bg-white border-right-0 text-muted">Đến</span>
+                    </div>
                     <input
                         type="number"
-                        className="form-control form-control-sm"
-                        placeholder="Đến giá (Max)"
+                        className="form-control border-left-0"
+                        placeholder="999.000..."
                         value={maxPrice}
-                        onChange={(e) => setMaxPrice(e.target.value)}
-                        style={{ borderRadius: '6px' }}
+                        onChange={(e) => onFilterChange({ maxPrice: e.target.value })}
+                        style={{ outline: 'none', boxShadow: 'none' }}
                     />
                 </div>
-                <button type="submit" className="btn btn-sm btn-block text-white font-weight-bold shadow-sm" style={{ backgroundColor: '#005088', borderRadius: '6px', transition: '0.3s' }}>
-                    <i className="fas fa-filter mr-1"></i> Áp dụng mức giá
-                </button>
-            </form>
+            </div>
+
+
+            {/* Nút reset nhanh cho UX tốt hơn */}
+            <button
+                className="btn btn-sm btn-outline-secondary btn-block mt-4"
+                style={{ fontSize: '12px', borderRadius: '20px' }}
+                onClick={() => onFilterChange({ categoryProductId: null, minPrice: '', maxPrice: '' })}
+            >
+                Xóa bộ lọc
+            </button>
         </div>
     );
 }
+
 
 export default ShopSidebar;

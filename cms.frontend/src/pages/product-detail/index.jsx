@@ -1,151 +1,164 @@
-﻿import React, { useState, useEffect, useContext } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+﻿import React, { useState, useEffect } from 'react';
+// Thư viện useParams hỗ trợ bóc tách biến số trên URL đường dẫn
+import { useParams, Link } from 'react-router-dom';
 import productService from '../../services/productService';
-import { CartContext } from '../../context/CartContext';
 
-const IMAGE_BASE_URL = "https://localhost:7238"; // Cấu hình gốc Backend của bạn
+
+
+
+const IMAGE_BASE_URL = "https://localhost:7111"; // Cổng Port chạy ngầm của Backend C#
+
+
+
 
 function ProductDetail() {
-    const { id } = useParams();
-    const navigate = useNavigate();
+    const { id } = useParams(); // Lấy biến ID động (Ví dụ: /product/12 -> lấy được con số 12)
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
+
+
+    // State cục bộ quản lý ô số lượng khách muốn chọn mua (Mặc định bằng 1)
     const [quantity, setQuantity] = useState(1);
-    const { addToCart } = useContext(CartContext);
+
+
+
 
     useEffect(() => {
-        const fetchProduct = async () => {
-            setLoading(true);
-            const data = await productService.getProductById(id);
-            setProduct(data);
-            setLoading(false);
+        const fetchProductById = async () => {
+            try {
+                setLoading(true);
+                const data = await productService.getProductById(id);
+                setProduct(data.data || data); // Nạp đối tượng sản phẩm độc bản vào state
+            } catch (error) {
+                console.error("Lỗi lấy chi tiết sản phẩm:", error);
+            } finally {
+                setLoading(false);
+            }
         };
-        fetchProduct();
+        fetchProductById();
     }, [id]);
 
-    // Định dạng tiền tệ VNĐ chuẩn có gạch chân d chữ đ
-    const formatCurrency = (value) => {
-        if (value === 0 || !value) return <span className="text-danger font-weight-bold" style={{ fontSize: '28px' }}>0 <span className="text-decoration-underline">đ</span></span>;
-        return <span className="text-danger font-weight-bold" style={{ fontSize: '28px' }}>{new Intl.NumberFormat('vi-VN').format(value)} <span className="text-decoration-underline">đ</span></span>;
+
+
+
+    // Hàm tiện ích ép định dạng hiển thị tiền tệ chuẩn Việt Nam (đ)
+    const formatVND = (number) => {
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(number);
     };
 
-    const getImageUrl = (url) => {
-        if (!url) return "https://via.placeholder.com/450?text=No+Image";
-        if (url.startsWith('http')) return url;
-        const cleanUrl = url.startsWith('/') ? url : `/${url}`;
-        return `${IMAGE_BASE_URL}${cleanUrl}`;
-    };
 
-    const handleAddToCart = () => {
-        if (!product) return;
+
+
+    // LOGIC CỐT LÕI: Kiểm thử hành động thêm sản phẩm vào giỏ hàng toàn cục
+    const handleAddToCartSubmit = () => {
+        // Thực hiện so sánh toán học trực tiếp giữa ô chọn mua với cột tồn kho thực tế
         if (quantity > product.stockQuantity) {
-            alert(`⚠️ Số lượng trong kho không đủ!\nHiện tại hệ thống chỉ còn ${product.stockQuantity} sản phẩm.`);
-            return;
+            // Nếu vượt kho -> Chặn lại lập tức, phát thông báo cảnh báo UX
+            alert(`⛔ LỖI NGHIỆP VỤ KHO: Số lượng đặt mua (${quantity} chiếc) vượt quá số lượng hiện có trong kho hàng (Hiện còn: ${product.stockQuantity} chiếc). Vui lòng điều chỉnh lại số lượng!`);
+            return; // Ngắt hàm, không cho chạy xuống lệnh nạp giỏ hàng bên dưới
         }
-        addToCart(product, quantity);
-        alert(`🎉 Thành công! Đã thêm ${quantity} mẫu [${product.name}] vào giỏ hàng.`);
+
+
+
+
+        // Kịch bản hợp lệ -> Đủ điều kiện đẩy vào mảng giỏ hàng toàn cục (Bổ sung ở buổi 12)
+        alert(`🎉 THÀNH CÔNG: Đã thêm ${quantity} chiếc "${product.name}" vào giỏ hàng cá nhân!`);
     };
+
+
+
+
+    if (loading) return <div className="text-center py-5 font-italic text-muted">Đang truy vấn kho dữ liệu mẫu thời trang...</div>;
+    if (!product) return <div className="text-center py-5 text-danger font-weight-bold">Sản phẩm này không tồn tại trên hệ thống ThaiCMS.</div>;
+
+
+
 
     return (
-        <main className="flex-grow-1 bg-white py-4">
-            <div className="container">
-                {loading ? (
-                    <div className="text-center py-5 my-5">
-                        <div className="spinner-border text-primary" role="status"></div>
+        <div className="container py-5">
+            <div className="row mt-3 bg-white p-4 rounded shadow-sm">
+                {/* KHỐI BÊN TRÁI: HIỂN THỊ 1 ẢNH ĐẠI DIỆN DUY NHẤT (ÉP CHUẨN CỐ ĐỊNH TỈ LỆ) */}
+                <div className="col-md-6 mb-4">
+                    <div className="product-image-container border rounded" style={{ overflow: 'hidden', height: '450px' }}>
+                        <img
+                            src={
+                                product.imageUrl
+                                    ? (product.imageUrl.startsWith('http') ? product.imageUrl : `${IMAGE_BASE_URL}${product.imageUrl}`)
+                                    : 'https://via.placeholder.com/500x500'
+                            }
+                            alt={product.name}
+                            className="w-100 h-100"
+                            style={{ objectFit: 'cover' }} // Giúp ảnh tự co giãn bọc khung, không bao giờ bị bóp méo
+                        />
                     </div>
-                ) : !product ? (
-                    <div className="container text-center py-5">
-                        <div className="alert alert-danger">Sản phẩm này không tồn tại hoặc đã ngừng kinh doanh.</div>
-                        <button className="btn btn-secondary btn-sm" onClick={() => navigate('/shop')}>Quay lại cửa hàng</button>
+                </div>
+
+
+
+
+                {/* KHỐI BÊN PHẢI: CHI TIẾT THÔNG TIN VÀ NÚT HÀNH ĐỘNG MUA SẮM */}
+                <div className="col-md-6">
+                    <h2 className="font-weight-bold text-dark mb-2">{product.name}</h2>
+
+
+                    {/* Hiển thị giá bán lớn màu đỏ, nổi bật */}
+                    <h3 className="text-danger font-weight-bold mb-4" style={{ letterSpacing: '0.5px' }}>
+                        {formatVND(product.price)}
+                    </h3>
+
+
+                    <div className="mb-4">
+                        <span className="badge badge-light py-2 px-3 border text-secondary">
+                            <i className="fas fa-warehouse mr-2"></i> Số lượng tồn kho thực tế: <strong className="text-dark">{product.stockQuantity} chiếc</strong>
+                        </span>
                     </div>
-                ) : (
-                    <div className="card border-light shadow-sm p-3 bg-white" style={{ borderRadius: '4px' }}>
-                        <div className="row">
 
-                            {/* Cột trái: Khung chứa ảnh sản phẩm sát mép nhẹ */}
-                            <div className="col-md-5 mb-3 text-center">
-                                <div className="p-1 border rounded bg-light" style={{ minHeight: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <img
-                                        src={getImageUrl(product.imageUrl)}
-                                        alt={product.name}
-                                        className="img-fluid"
-                                        style={{ width: '100%', height: 'auto', objectFit: 'contain' }}
-                                        onError={(e) => {
-                                            e.target.src = "https://via.placeholder.com/450?text=KieuCMS+Product";
-                                        }}
-                                    />
-                                </div>
-                            </div>
 
-                            {/* Cột phải: Thông tin chi tiết */}
-                            <div className="col-md-7 pl-md-4">
-                                {/* Tên sản phẩm */}
-                                <h2 className="font-weight-bold text-dark mb-2" style={{ fontSize: '28px', color: '#2b2b2b' }}>
-                                    {product.name}
-                                </h2>
 
-                                {/* Giá tiền */}
-                                <div className="mb-3">
-                                    {formatCurrency(product.price)}
-                                </div>
 
-                                {/* Nhãn số lượng tồn kho thực tế */}
-                                <div className="mb-3 text-muted" style={{ fontSize: '13px' }}>
-                                    <span className="bg-light border px-2 py-1 rounded d-inline-block">
-                                        <i className="fas fa-warehouse mr-1 text-secondary"></i> Số lượng tồn kho thực tế: <strong className="text-dark">{product.stockQuantity || 333} chiếc</strong>
-                                    </span>
-                                </div>
+                    <p className="text-secondary mb-4 text-justify" style={{ fontSize: '15px', lineHeight: '1.6' }}>
+                        {product.description || "Mô tả sản phẩm cao cấp đang được cập nhật chi tiết từ hệ thống quản trị nội dung ThaiCMS.Fashion..."}
+                    </p>
 
-                                {/* Mô tả sản phẩm */}
-                                <p className="text-secondary text-justify mb-4 small" style={{ lineHeight: '1.7', color: '#666' }}>
-                                    {product.description || "Chưa có mô tả chi tiết cho thiết kế đầm cao cấp này."}
-                                </p>
 
-                                <hr />
 
-                                {/* Bảng tương tác mua hàng phía dưới */}
-                                <div className="row align-items-end mt-3">
-                                    {/* Số lượng mua */}
-                                    <div className="col-sm-4 mb-3">
-                                        <label className="font-weight-bold text-secondary text-uppercase d-block mb-2" style={{ fontSize: '12px', letterSpacing: '0.5px' }}>
-                                            Số lượng mua:
-                                        </label>
-                                        <input
-                                            type="number"
-                                            className="form-control text-center font-weight-bold border"
-                                            value={quantity}
-                                            min="1"
-                                            onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
-                                            style={{ height: '42px', borderRadius: '4px' }}
-                                        />
-                                    </div>
 
-                                    {/* Nút thêm vào giỏ hàng dạng Thanh ngang vuông vắn màu xanh biển */}
-                                    <div className="col-sm-8 mb-3">
-                                        <button
-                                            className="btn text-white font-weight-bold btn-block d-flex align-items-center justify-content-center"
-                                            style={{
-                                                backgroundColor: '#005088',
-                                                height: '42px',
-                                                borderRadius: '4px',
-                                                fontSize: '14px'
-                                            }}
-                                            disabled={product.stockQuantity <= 0}
-                                            onClick={handleAddToCart}
-                                        >
-                                            <i className="fas fa-shopping-cart mr-2" style={{ fontSize: '13px' }}></i>
-                                            THÊM VÀO GIỎ HÀNG
-                                        </button>
-                                    </div>
-                                </div>
+                    <hr className="my-4" />
 
-                            </div>
+
+
+
+                    {/* KHU VỰC ĐIỀU CHỈNH SỐ LƯỢNG MUA VÀ ACTION BUTTON */}
+                    <div className="d-flex align-items-center flex-wrap" style={{ gap: '15px' }}>
+                        <div className="quantity-select-wrapper" style={{ width: '120px' }}>
+                            <label className="small text-muted font-weight-bold mb-1 d-block">SỐ LƯỢNG MUA:</label>
+                            <input
+                                type="number"
+                                className="form-control text-center font-weight-bold"
+                                min="1"
+                                value={quantity}
+                                onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                            />
+                        </div>
+
+
+                        <div className="btn-action-wrapper flex-grow-1 pt-4">
+                            <button
+                                className="btn btn-primary btn-block font-weight-bold py-2"
+                                style={{ backgroundColor: '#005088', borderColor: '#005088', borderRadius: '6px' }}
+                                onClick={handleAddToCartSubmit}
+                            >
+                                <i className="fas fa-shopping-cart mr-2"></i> THÊM VÀO GIỎ HÀNG
+                            </button>
                         </div>
                     </div>
-                )}
+                </div>
             </div>
-        </main>
+        </div>
     );
 }
+
+
+
 
 export default ProductDetail;

@@ -1,14 +1,7 @@
-﻿/*
-sinh viên: Thái Mộng Kiều
-mã số: 2123110013
-ngày tạo: 20-05-2026
-version: 1.0
-*/
-
-using CMS.Data;
+﻿using CMS.Data;
 using CMS.Data.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore; // BẮT BUỘC phải có để dùng .Include()
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace CMS.Controllers
@@ -17,60 +10,45 @@ namespace CMS.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        // "Tiêm" kết nối cơ sở dữ liệu vào Controller
         public OrderController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // Action lấy danh sách đơn hàng từ SQL Server
+        // Hiển thị danh sách đơn hàng ngoài bảng quản trị Admin
         public IActionResult Index()
         {
-            // Lấy toàn bộ đơn hàng và kết nối lấy kèm thông tin Khách hàng đặt đơn đó
             var data = _context.Orders
-                               .Include(o => o.Customer)
+                               .Include(o => o.Customer) // Nạp thông tin người mua
+                               .OrderByDescending(o => o.Id)
                                .ToList();
-
             return View(data);
         }
 
+        // Hiển thị giao diện Chi tiết đơn hàng (Hình 1 của bạn)
         [HttpGet]
         public IActionResult Detail(int id)
         {
             var order = _context.Orders
                 .Include(o => o.Customer)
-                .Include(o => o.OrderDetails)
-                    .ThenInclude(od => od.Product)
+                .Include(o => o.OrderDetails) // 🟢 QUAN TRỌNG: Phải nạp danh sách sản phẩm con
+                    .ThenInclude(od => od.Product) // Nạp thông tin Tên/Hình ảnh của Product
                 .FirstOrDefault(o => o.Id == id);
 
-            if (order == null)
-            {
-                return NotFound();
-            }
+            if (order == null) return NotFound();
 
-            return View(order);
+            return View(order); // Trả về tệp View(.cshtml) cho Admin
         }
 
         public IActionResult Delete(int id)
         {
-            var order = _context.Orders
-                .Include(o => o.OrderDetails)
-                .FirstOrDefault(o => o.Id == id);
-
+            var order = _context.Orders.Include(o => o.OrderDetails).FirstOrDefault(o => o.Id == id);
             if (order != null)
             {
-                // Xóa chi tiết đơn hàng trước
-                if (order.OrderDetails != null)
-                {
-                    _context.OrderDetails.RemoveRange(order.OrderDetails);
-                }
-
-                // Xóa đơn hàng
+                if (order.OrderDetails != null) _context.OrderDetails.RemoveRange(order.OrderDetails);
                 _context.Orders.Remove(order);
-
                 _context.SaveChanges();
             }
-
             return RedirectToAction("Index");
         }
     }

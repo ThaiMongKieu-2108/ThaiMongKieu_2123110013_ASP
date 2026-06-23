@@ -164,7 +164,7 @@ function Header() {
                         <div className="col-md-3 col-6">
                             <Link to="/" className="text-decoration-none">
                                 <h3 className="font-weight-bold m-0" style={{ color: '#005088', letterSpacing: '1px' }}>
-                                    KieuCMS<span style={{ color: '#11CAA0' }}>.Fashion</span>
+                                    Kieu<span style={{ color: '#11CAA0' }}>.BookWorld</span>
                                 </h3>
                             </Link>
                         </div>
@@ -175,7 +175,7 @@ function Header() {
                                 <input
                                     type="text"
                                     className="form-control border-right-0"
-                                    placeholder="Tìm kiếm mẫu đầm dạ hội, sơ mi công sở..."
+                                    placeholder="Tìm kiếm sách, văn phòng phẩm,..."
                                     style={{ borderRadius: '20px 0 0 20px', fontSize: '14px' }}
                                 />
                                 <div className="input-group-append">

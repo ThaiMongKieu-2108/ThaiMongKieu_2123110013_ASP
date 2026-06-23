@@ -24,7 +24,7 @@ function ShopHeader({ total, keyword, onSearchChange }) {
                         <input
                             type="text"
                             className="form-control border-left-0"
-                            placeholder="Gõ từ khóa tìm mẫu váy, đầm, quần tây..."
+                            placeholder="Gõ từ khóa tìm sách, văn phòng phẩm,...."
                             value={keyword}
                             onChange={(e) => onSearchChange({ keyword: e.target.value })}
                         />

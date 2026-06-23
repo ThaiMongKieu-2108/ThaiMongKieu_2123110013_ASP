@@ -7,6 +7,10 @@ function BlogPage() {
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // 🟢 CÁC STATE PHỤC VỤ PHÂN TRANG BÀI VIẾT
+    const [currentPage, setCurrentPage] = useState(1);
+    const [postsPerPage] = useState(4); // Cấu hình hiển thị 4 bài viết trên mỗi trang
+
     // Chạy đầu tiên để tải toàn bộ bài viết
     useEffect(() => {
         loadAllPosts();
@@ -22,6 +26,7 @@ function BlogPage() {
     // Hàm nhận sự kiện chọn danh mục từ Sidebar con gửi lên
     const handleSelectCategory = async (categoryId) => {
         setLoading(true);
+        setCurrentPage(1); // 🟢 QUAN TRỌNG: Đổi danh mục thì phải đưa số trang về lại trang 1
         if (categoryId === null) {
             await loadAllPosts(); // Nếu click "Tất cả" thì nạp lại toàn bộ
         } else {
@@ -30,6 +35,19 @@ function BlogPage() {
         }
         setLoading(false);
     };
+
+    // 🟢 THUẬT TOÁN TÍNH TOÁN PHÂN TRANG ĐỘNG
+    const indexOfLastPost = currentPage * postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+    const currentPosts = posts.slice(indexOfFirstPost, indexOfLastPost); // Cắt mảng bài viết theo trang
+
+    const totalPages = Math.ceil(posts.length / postsPerPage); // Tính tổng số trang
+
+    // Tạo danh sách các số trang [1, 2, 3...]
+    const pageNumbers = [];
+    for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+    }
 
     return (
         <div className="blog-page-wrapper bg-light min-vh-100">
@@ -62,14 +80,48 @@ function BlogPage() {
                                 <div className="spinner-border text-primary" role="status"></div>
                                 <p className="text-muted mt-2 mb-0 small">Đang tải bài viết bổ ích...</p>
                             </div>
-                        ) : posts.length > 0 ? (
-                            <div className="row">
-                                {posts.map((post) => (
-                                    <div className="col-lg-6 col-md-10 mb-4" key={post.id}>
-                                        <PostCard post={post} />
-                                    </div>
-                                ))}
-                            </div>
+                        ) : currentPosts.length > 0 ? (
+                            <>
+                                {/* Chỉ render danh sách bài viết thuộc trang hiện tại (currentPosts) */}
+                                <div className="row">
+                                    {currentPosts.map((post) => (
+                                        <div className="col-lg-6 col-md-10 mb-4" key={post.id}>
+                                            <PostCard post={post} />
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* 🟢 THANH ĐIỀU HƯỚNG PHÂN TRANG (PAGINATION) BẰNG BOOTSTRAP */}
+                                {totalPages > 1 && (
+                                    <nav className="mt-2 d-flex justify-content-center">
+                                        <ul className="pagination pagination-sm shadow-sm">
+                                            {/* Nút Quay lại trang trước */}
+                                            <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                                <button className="page-link" onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}>
+                                                    <i className="fas fa-angle-left"></i> Trước
+                                                </button>
+                                            </li>
+
+                                            {/* Map danh sách các số trang */}
+                                            {pageNumbers.map(number => (
+                                                <li key={number} className={`page-item ${currentPage === number ? 'active' : ''}`}>
+                                                    <button onClick={() => setCurrentPage(number)} className="page-link"
+                                                        style={currentPage === number ? { backgroundColor: '#005088', borderColor: '#005088' } : {}}>
+                                                        {number}
+                                                    </button>
+                                                </li>
+                                            ))}
+
+                                            {/* Nút Sang trang sau */}
+                                            <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                                <button className="page-link" onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}>
+                                                    Sau <i className="fas fa-angle-right"></i>
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                )}
+                            </>
                         ) : (
                             <div className="alert alert-warning text-center border-0 shadow-sm py-4">
                                 <i className="fas fa-exclamation-triangle mr-2"></i>

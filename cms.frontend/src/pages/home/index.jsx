@@ -1,55 +1,42 @@
-﻿import React from 'react';
+﻿import React, { useState } from 'react';
 
-
-
-
-// IMPORT ĐỦ 6 TẦNG THEO ĐÚNG THỨ TỰ HƯỚNG DẪN
-import HeroBanner from './HeroBanner';
-import CategoryMenu from './CategoryMenu';
-import ProductGrid from './ProductGrid';
-import LatestBlog from './LatestBlog';
-
-
-
+// IMPORT ĐỦ CÁC THÀNH PHẦN THEO ĐÚNG THỨ TỰ CẤU TRÚC LAYOUT HỆ THỐNG NHÀ SÁCH
+import HeroBanner from './HeroBanner';        // Tầng 2: Banner quảng cáo sách lớn
+import CategoryMenu from './CategoryMenu';    // Tầng 3: Menu ngang danh mục nhà sách
+import ProductGrid from './ProductGrid';      // Tầng 4: Lưới hiển thị danh sách sách/ebook
+import LatestBlog from './LatestBlog';        // Tầng 5: Khối hiển thị bài viết văn hóa đọc
 
 function Home() {
+    // 🟢 STATE TRUNG GIAN: Quản lý ID danh mục sách đang được người dùng lựa chọn từ Tầng 3
+    const [selectedCategory, setSelectedCategory] = useState(null);
+
+    // Hàm nhận dữ liệu ID danh mục được click từ Component con (CategoryMenu) truyền lên
+    const handleCategorySelect = (categoryId) => {
+        setSelectedCategory(categoryId);
+    };
+
     return (
-        <div className="homepage-container">
-            {/* TẦNG 1: Thanh tiện ích, logo, ô tìm kiếm và giỏ hàng nhanh */}
+        <div className="homepage-container bg-white min-vh-100 d-flex flex-column">
 
-
-
-
-            {/* TẦNG 2: Banner quảng cáo lớn, hình khối trang trí và nút kêu gọi mua hàng */}
+            {/* TẦNG 2: Banner quảng cáo lớn, hình khối trang trí và nút kêu gọi mua sách khơi nguồn tri thức */}
             <HeroBanner />
 
-
-
-
             {/* TẦNG 3: Menu ngang hiển thị danh mục sản phẩm (Gọi API /api/CategoriesProducts) */}
-            <CategoryMenu />
+            {/* Truyền hàm callback xuống để bắt sự kiện click đổi danh mục */}
+            <CategoryMenu
+                activeCategory={selectedCategory}
+                onSelectCategory={handleCategorySelect}
+            />
 
+            {/* TẦNG 4: Lưới hiển thị danh sách sách mới hoặc sách lọc theo danh mục (Gọi API /api/Products) */}
+            {/* Nhận biến selectedCategory để tự động Re-render cập nhật lại lưới sách */}
+            <ProductGrid activeCategoryId={selectedCategory} />
 
-
-
-            {/* TẦNG 4: Lưới hiển thị danh sách sản phẩm thời trang (Gọi API /api/Products) */}
-            <ProductGrid />
-
-
-
-
-            {/* TẦNG 5: Khối hiển thị các bài viết tin tức xu hướng mặc đẹp (Gọi API /api/Posts) */}
+            {/* TẦNG 5: Khối hiển thị các bài viết tin tức tóm tắt sách và kỹ năng xây dựng thói quen đọc (Gọi API /api/Posts) */}
             <LatestBlog />
 
-
-
-
-            {/* TẦNG 6: Chân trang quản trị thông tin liên hệ, hotline và chính sách cửa hàng */}
         </div>
     );
 }
-
-
-
 
 export default Home;

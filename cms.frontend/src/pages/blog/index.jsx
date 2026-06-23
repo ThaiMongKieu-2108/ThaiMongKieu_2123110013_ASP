@@ -59,7 +59,7 @@ function BlogPage() {
                         TẠP CHÍ NHÀ SÁCH KIEUCMS
                     </h2>
                     <p className="text-muted small m-0 mt-1 font-italic">
-                        Cập nhật cẩm nang phối đồ và xu hướng mặc đẹp mới nhất từ các nhà thiết kế
+                        Cập nhật cẩm nang sách mới....
                     </p>
                 </div>
             </div>

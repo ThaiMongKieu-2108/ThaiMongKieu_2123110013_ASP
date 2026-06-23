@@ -24,6 +24,8 @@ namespace CMS.Data.Entities
         public string Name { get; set; } // Tên danh mục sản phẩm
         public int DisplayOrder { get; set; }
         public string? Description { get; set; } // Mô tả danh mục sản phẩm, có thể để trống (nullable)
+        [StringLength(500)]
+        public string? ImageUrl { get; set; }
         public bool IsActive { get; set; } = true;
         // Quan hệ: Một danh mục có nhiều sản phẩm
         public virtual ICollection<Product>? Products { get; set; } // Danh sách các sản phẩm thuộc danh mục này, có thể để trống (nullable)

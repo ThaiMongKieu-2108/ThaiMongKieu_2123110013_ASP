@@ -17,119 +17,67 @@
 
         <div class="card-body">
 
-            <form asp-action="Create"
-                  method="post">
+            <form asp-action="Create" method="post" enctype="multipart/form-data">
 
                 <div class="row">
 
-                    <!-- LEFT -->
                     <div class="col-md-8">
 
-                        <!-- TITLE -->
                         <div class="mb-3">
-
                             <label class="form-label fw-bold">
                                 Tiêu đề bài viết:
                             </label>
-
-                            <input asp-for="Title"
-                                   class="form-control"
-                                   placeholder="Nhập tiêu đề..." />
-
-                            <span asp-validation-for="Title"
-                                  class="text-danger"></span>
-
+                            <input asp-for="Title" class="form-control" placeholder="Nhập tiêu đề bài viết tin tức..." required />
+                            <span asp-validation-for="Title" class="text-danger"></span>
                         </div>
 
-                        <!-- CONTENT -->
                         <div class="mb-3">
-
                             <label class="form-label fw-bold">
-                                Nội dung chi tiết:
+                                Nội dung chi tiết bài viết:
                             </label>
-
-                            <textarea asp-for="Content"
-                                      class="form-control"
-                                      rows="10"
-                                      placeholder="Viết nội dung tại đây..."></textarea>
-
-                            <span asp-validation-for="Content"
-                                  class="text-danger"></span>
-
+                            <textarea asp-for="Content" class="form-control" rows="12" placeholder="Xây dựng nội dung và chèn hình ảnh tại đây..."></textarea>
+                            <span asp-validation-for="Content" class="text-danger"></span>
                         </div>
 
                     </div>
 
-                    <!-- RIGHT -->
                     <div class="col-md-4">
 
-                        <!-- CATEGORY -->
                         <div class="mb-3">
-
                             <label class="form-label fw-bold">
-                                Chuyên mục:
+                                Chuyên mục bài viết:
                             </label>
-
-                            <select asp-for="CategoryId"
-                                    class="form-select"
-                                    asp-items="ViewBag.CategoryList">
-
-                                <option value="">
-                                    -- Chọn danh mục --
-                                </option>
-
+                            <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryList" required>
+                                <option value="">-- Chọn danh mục bài viết --</option>
                             </select>
-
+                            <span asp-validation-for="CategoryId" class="text-danger"></span>
                         </div>
 
-                        <!-- IMAGE -->
                         <div class="mb-3">
-
                             <label class="form-label fw-bold">
-                                Link ảnh đại diện (URL):
+                                Link ảnh đại diện (Thumbnail URL):
                             </label>
-
-                            <input asp-for="ImageUrl"
-                                   class="form-control"
-                                   placeholder="https://..." />
-
+                            <input asp-for="ImageUrl" class="form-control" placeholder="https://images.unsplash.com/..." />
+                            <span asp-validation-for="ImageUrl" class="text-danger"></span>
                         </div>
 
-                        <!-- DATE -->
                         <div class="mb-3">
-
                             <label class="form-label fw-bold">
-                                Ngày đăng:
+                                Ngày xuất bản:
                             </label>
-
-                            <input asp-for="CreatedDate"
-                                   type="date"
-                                   class="form-control"
-                                   value="@DateTime.Now.ToString("yyyy-MM-dd")" />
-
+                            <input asp-for="CreatedDate" type="date" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="CreatedDate" class="text-danger"></span>
                         </div>
 
                         <hr />
 
-                        <!-- BUTTON -->
                         <div class="d-grid gap-2">
-
-                            <button type="submit"
-                                    class="btn btn-success">
-
-                                <i class="bi bi-cloud-arrow-up"></i>
-                                Lưu và Đăng bài
-
+                            <button type="submit" class="btn btn-success fw-bold py-2 shadow-sm">
+                                <i class="bi bi-cloud-arrow-up"></i> Lưu và Đăng bài
                             </button>
-
-                            <a asp-action="Index"
-                               class="btn btn-secondary">
-
-                                <i class="bi bi-arrow-left"></i>
-                                Quay lại danh sách
-
+                            <a asp-action="Index" class="btn btn-secondary py-2 shadow-sm">
+                                <i class="bi bi-arrow-left"></i> Quay lại danh sách
                             </a>
-
                         </div>
 
                     </div>
@@ -140,17 +88,27 @@
 </div>
 
 @section Scripts {
-
     <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 
     <script>
-
         ClassicEditor
-            .create(document.querySelector('#Content'))
+            .create(document.querySelector('#Content'), {
+                // 🟢 ĐÃ TÍCH HỢP ĐẦY ĐỦ: Cấu hình endpoint kết nối luồng upload ảnh không đồng bộ sang Controller C#
+                ckfinder: {
+                    uploadUrl: '/Post/UploadEditorImage'
+                },
+                // Mở rộng thanh công cụ hỗ trợ đầy đủ tính năng biên tập đa phương tiện
+                toolbar: {
+                    items: [
+                        'heading', '|',
+                        'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', '|',
+                        'imageUpload', 'insertTable', 'mediaEmbed', '|',
+                        'undo', 'redo'
+                    ]
+                }
+            })
             .catch(error => {
-                console.error(error);
+                console.error("Lỗi cấu hình khởi tạo hệ thống CKEditor 5:", error);
             });
-
     </script>
-
 }

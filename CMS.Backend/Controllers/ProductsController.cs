@@ -186,5 +186,39 @@ namespace CMS.Backend.Controllers
                 message = "Xóa thành công"
             });
         }
+        [HttpGet("top-selling")]
+        public async Task<IActionResult> GetTopSelling()
+        {
+            try
+            {
+                var topProducts = await _context.OrderDetails
+                    .GroupBy(od => od.ProductId) // Nhóm lại theo từng mã sách
+                    .Select(g => new
+                    {
+                        ProductId = g.Key,
+                        TotalSold = g.Sum(od => od.Quantity) // Tính tổng số lượng bán ra
+                    })
+                    .OrderByDescending(x => x.TotalSold) // Sắp xếp giảm dần theo số lượng bán
+                    .Take(3) // Chỉ lấy đúng 3 sản phẩm dẫn đầu
+                    .Join(_context.Products,
+                          top => top.ProductId,
+                          p => p.Id,
+                          (top, p) => new {
+                              p.Id,
+                              p.Name,
+                              p.Price,
+                              p.ImageUrl,
+                              p.Description,
+                              TotalSold = top.TotalSold
+                          })
+                    .ToListAsync();
+
+                return Ok(topProducts);
+            }
+            catch (System.Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi hệ thống khi thống kê dữ liệu", detail = ex.Message });
+            }
+        }
     }
 }

@@ -33,33 +33,27 @@ namespace CMS.Backend.Controllers
         {
             try
             {
-                // Bước A: Quét bảng dữ liệu CategoriesProducts số nhiều dưới SQL Server lên
                 var categories = await _context.CategoriesProducts
-                    .OrderBy(c => c.DisplayOrder) // Ưu tiên sắp xếp theo thứ tự hiển thị
+                    .OrderBy(c => c.DisplayOrder)
                     .Select(c => new {
-                        // Bước B: Kỹ thuật gọt tỉa (Projection) - chỉ lấy các trường cần thiết ra FrontEnd
                         c.Id,
                         c.Name,
                         c.Description,
+                        c.ImageUrl, // 🟢 Gọt tỉa thêm trường ImageUrl trả ra FrontEnd ReactJS
                         c.DisplayOrder,
                         c.IsActive
                     })
-                    .ToListAsync(); // Chuyển đổi bất đồng bộ sang dạng danh sách mảng
+                    .ToListAsync();
 
-            // Bước C: Trả về mã thành công HTTP 200 OK đính kèm chuỗi chữ JSON sạch
-            return Ok(categories);
-        }
+                return Ok(categories);
+            }
             catch (System.Exception ex)
             {
-                // Bảo vệ hệ thống: Nếu sập kết nối SQL thì trả về lỗi 500 kèm lời nhắn lý do lỗi
-                return StatusCode(500, new { 
-                    message = "Lỗi kết nối cơ sở dữ liệu hệ thống", 
-                    detail = ex.Message
-    });
+                return StatusCode(500, new { message = "Lỗi kết nối cơ sở dữ liệu", detail = ex.Message });
             }
         }
 
- // =================================================================
+        // =================================================================
         // 2. GET DETAIL: Lấy chi tiết một danh mục sản phẩm theo ID (api/categoryproduct/{id})
         // =================================================================
         [HttpGet("{id}")]
@@ -101,29 +95,17 @@ namespace CMS.Backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] CategoryProduct model)
         {
-            var category = await _context.CategoriesProducts
-                .FirstOrDefaultAsync(x => x.Id == id);
-
-            if (category == null)
-            {
-                return NotFound(new
-                {
-                    message = "Không tìm thấy danh mục"
-                });
-            }
+            var category = await _context.CategoriesProducts.FirstOrDefaultAsync(x => x.Id == id);
+            if (category == null) return NotFound(new { message = "Không tìm thấy danh mục" });
 
             category.Name = model.Name;
             category.Description = model.Description;
             category.DisplayOrder = model.DisplayOrder;
+            category.ImageUrl = model.ImageUrl; // 🟢 Cập nhật trường dữ liệu ảnh mới
             category.IsActive = model.IsActive;
 
             await _context.SaveChangesAsync();
-
-            return Ok(new
-            {
-                message = "Cập nhật thành công",
-                data = category
-            });
+            return Ok(new { message = "Cập nhật thành công", data = category });
         }
         // xóa một danh mục sản phẩm thời trang (Giao thức DELETE)
         [HttpDelete("{id}")]

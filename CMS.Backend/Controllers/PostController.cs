@@ -1,26 +1,22 @@
 ﻿/*
 sinh viên: Thái Mộng Kiều
 mã số: 2123110013
-ngày tạo: 14-05-2026
-version: 1.0
+ngày chỉnh sửa: 23-06-2026
+version: 1.1 (Tích hợp API kết nối cổng tải hình ảnh không đồng bộ cho CKEditor 5)
  */
 using CMS.Data;
-
 using CMS.Data.Entities; // Thêm using cho các thực thể dữ liệu nếu cần thiết
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore; // Thêm using cho Entity Framework
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Authorization;
-namespace CMS.Backend.Controllers
 
+namespace CMS.Backend.Controllers
 {
     [Authorize]
     public class PostController : Controller
     {
-        
-        // Tương tự như CategoryController, chúng ta sẽ "tiêm" ApplicationDbContext để truy cập dữ liệu từ SQL
-
         private readonly ApplicationDbContext _context;
 
         // "Tiêm" kết nối vào Controller tương tự như CategoryController của bạn
@@ -33,9 +29,9 @@ namespace CMS.Backend.Controllers
         {
             var posts = _context.Posts.ToList(); // Lấy tất cả bài viết
             return View(posts);
-
         }
-        // Hàm Details: Hiển thị chi tiết một bài viết (Bổ sung  khá giỏi)
+
+        // Hàm Details: Hiển thị chi tiết một bài viết
         // GET: Post/Details/5
         public IActionResult Details(int id)
         {
@@ -60,10 +56,7 @@ namespace CMS.Backend.Controllers
         {
             if (id == null)
             {
-                if (id == null)
-                {
-                    return BadRequest("Vui lòng cung cấp mã danh mục.");
-                }
+                return BadRequest("Vui lòng cung cấp mã danh mục.");
             }
 
             // Lấy thông tin danh mục hiện tại để hiển thị tên danh mục lên tiêu đề trang
@@ -82,8 +75,8 @@ namespace CMS.Backend.Controllers
                                 .ToList();
 
             return View(posts);
-
         }
+
         // 1. Hàm hiển thị form tạo mới bài viết (GET)
         [HttpGet]
         public IActionResult Create()
@@ -92,8 +85,6 @@ namespace CMS.Backend.Controllers
             ViewBag.CategoryList = new SelectList(_context.Categories, "Id", "Name");
             return View();
         }
-
-
 
         [HttpPost]
         public IActionResult Create(Post model, IFormFile uploadImage)
@@ -124,6 +115,47 @@ namespace CMS.Backend.Controllers
             _context.SaveChanges();
             return RedirectToAction("Index");
         }
+
+        // 🟢 ĐÃ CHÈN VÀO ĐÂY: Hàm xử lý nhận file ảnh đẩy lên trực tiếp từ khung CKEditor
+        /// <summary>
+        /// API Endpoint tiếp nhận file ảnh tải lên trực tiếp từ giữa trình soạn thảo CKEditor
+        /// Đường dẫn gọi xử lý: POST /Post/UploadEditorImage
+        /// </summary>
+        [HttpPost]
+        [IgnoreAntiforgeryToken] // Tắt bộ lọc token bảo vệ để CKEditor gửi AJAX không bị chặn
+        public IActionResult UploadEditorImage(IFormFile upload)
+        {
+            if (upload == null || upload.Length == 0)
+            {
+                return Json(new { uploaded = false, error = new { message = "Tệp tin hình ảnh trống." } });
+            }
+
+            try
+            {
+                // 1. Thiết lập thư mục lưu trữ vật lý: wwwroot/uploads/editor
+                string folder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "editor");
+                if (!Directory.Exists(folder)) Directory.CreateDirectory(folder);
+
+                // 2. Tạo tên file định danh duy nhất chống ghi đè dữ liệu
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(upload.FileName);
+                string filePath = Path.Combine(folder, fileName);
+
+                // 3. Thực thi lưu tệp tin xuống ổ đĩa máy chủ
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    upload.CopyTo(stream);
+                }
+
+                // 4. Trả về đúng định dạng gói tin JSON mà CKEditor yêu cầu để tự động chèn thẻ <img> vào bài viết
+                string imageUrl = "/uploads/editor/" + fileName;
+                return Json(new { uploaded = true, url = imageUrl });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { uploaded = false, error = new { message = ex.Message } });
+            }
+        }
+
         public IActionResult Delete(int id)
         {
             // 1. Tìm bài viết theo Id
@@ -139,6 +171,7 @@ namespace CMS.Backend.Controllers
             }
             return RedirectToAction("Index");
         }
+
         // GET: Hiển thị form kèm dữ liệu cũ
         [HttpGet]
         public IActionResult Edit(int id)
@@ -176,7 +209,6 @@ namespace CMS.Backend.Controllers
             else
             {
                 // Bước quan trọng: Nếu không upload ảnh mới, chúng ta phải giữ lại ảnh cũ
-                // Chúng ta cần lấy lại giá trị ImageUrl từ Database để tránh bị ghi đè thành rỗng
                 var oldPost = _context.Posts.AsNoTracking().FirstOrDefault(p => p.Id == model.Id);
                 if (oldPost != null && string.IsNullOrEmpty(model.ImageUrl))
                 {
@@ -187,6 +219,5 @@ namespace CMS.Backend.Controllers
             _context.SaveChanges();
             return RedirectToAction("Index");
         }
-
     }
 }

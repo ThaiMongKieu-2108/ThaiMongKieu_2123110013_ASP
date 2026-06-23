@@ -5,40 +5,47 @@
     ViewData["Title"] = "Thêm khách hàng";
 }
 
-<h2>Thêm khách hàng</h2>
+<div class="container mt-4" style="max-width: 600px;">
+    <h2 class="text-success fw-bold mb-4">Thêm khách hàng mới</h2>
 
-<form asp-action="Create" method="post">
+    <form asp-action="Create" method="post" class="shadow-sm p-4 bg-white rounded border">
 
-    <div class="mb-3">
-        <label>Họ và tên</label>
-        <input asp-for="FullName" class="form-control" />
-    </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Họ và tên</label>
+            <input asp-for="FullName" class="form-control" placeholder="Nhập họ và tên..." required />
+            <span asp-validation-for="FullName" class="text-danger small"></span>
+        </div>
 
-    <div class="mb-3">
-        <label>Email</label>
-        <input asp-for="Email" class="form-control" />
-    </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Địa chỉ Email</label>
+            <input asp-for="Email" type="email" class="form-control" placeholder="example@gmail.com" required />
+            <span asp-validation-for="Email" class="text-danger small fw-bold"></span>
+        </div>
 
-    <div class="mb-3">
-        <label>Số điện thoại</label>
-        <input asp-for="Phone" class="form-control" />
-    </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Số điện thoại</label>
+            <input asp-for="Phone" class="form-control" placeholder="Nhập số điện thoại..." />
+            <span asp-validation-for="Phone" class="text-danger small"></span>
+        </div>
 
-    <div class="mb-3">
-        <label>Địa chỉ</label>
-        <input asp-for="Address" class="form-control" />
-    </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Địa chỉ</label>
+            <input asp-for="Address" class="form-control" placeholder="Nhập địa chỉ cư trú..." />
+            <span asp-validation-for="Address" class="text-danger small"></span>
+        </div>
 
-    <div class="mb-3">
-        <label>Mật khẩu</label>
-        <input asp-for="Password"
-               type="password"
-               class="form-control" />
-    </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold">Mật khẩu khởi tạo</label>
+            <input asp-for="Password" type="password" class="form-control" placeholder="Nhập mật khẩu..." required />
+            <span asp-validation-for="Password" class="text-danger small"></span>
+        </div>
 
-    <button type="submit"
-            class="btn btn-success">
-        Lưu
-    </button>
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-success px-4">
+                <i class="bi bi-save"></i> Lưu dữ liệu
+            </button>
+            <a asp-action="Index" class="btn btn-secondary px-3">Quay lại</a>
+        </div>
 
-</form>
+    </form>
+</div>

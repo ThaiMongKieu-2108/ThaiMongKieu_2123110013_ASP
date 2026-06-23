@@ -163,6 +163,38 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "CMS.Backend.Controllers.CustomersController",
+    "Method": "RequestOtp",
+    "RelativePath": "api/Customers/request-otp",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "CMS.Backend.Controllers.ForgotPasswordDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CMS.Backend.Controllers.CustomersController",
+    "Method": "ResetPassword",
+    "RelativePath": "api/Customers/reset-password",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "CMS.Backend.Controllers.ResetPasswordDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "CMS.Backend.Controllers.OrdersController",
     "Method": "CreateOrder",
     "RelativePath": "api/Orders",
@@ -382,6 +414,16 @@
         "IsRequired": true
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "CMS.Backend.Controllers.ProductsController",
+    "Method": "GetTopSelling",
+    "RelativePath": "api/Products/top-selling",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   }
 ]

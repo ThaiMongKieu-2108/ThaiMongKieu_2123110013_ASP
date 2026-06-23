@@ -2,20 +2,14 @@
 // Import dịch vụ gọi API danh mục sản phẩm đã thiết lập ở Buổi 7
 import categoryProductService from '../../services/categoryProductService';
 
-// 🟢 CẬP NHẬT: Nhận activeCategory và hàm callback onSelectCategory từ lớp cha Home.jsx truyền xuống
 function CategoryMenu({ activeCategory = null, onSelectCategory }) {
-    // 1. Khai báo State để lưu mảng danh mục sản phẩm từ SQL Server đổ về
     const [categories, setCategories] = useState([]);
-
-    // 2. Khai báo State quản lý trạng thái Loading dữ liệu mạng
     const [loading, setLoading] = useState(true);
 
-    // 3. Gọi API ngay khi file thành phần component Tầng 3 được nạp lên trang chủ
     useEffect(() => {
         const fetchMenuCategories = async () => {
             try {
                 setLoading(true);
-                // Gọi API thực tế: GET https://localhost:xxxx/api/CategoriesProducts
                 const data = await categoryProductService.getAllCategoryProducts();
                 setCategories(data);
             } catch (error) {
@@ -24,21 +18,15 @@ function CategoryMenu({ activeCategory = null, onSelectCategory }) {
                 setLoading(false);
             }
         };
-
         fetchMenuCategories();
     }, []);
 
-    // 4. Hàm xử lý khi khách hàng click chọn một danh mục cụ thể
     const handleCategoryClick = (id) => {
-        console.log(`Sinh viên thực hiện kích hoạt truyền ID danh mục: ${id}`);
-
-        // 🟢 CHÈN LỆNH QUAN TRỌNG: Đẩy dữ liệu ID lên lớp cha Home.jsx quản lý tập trung
         if (onSelectCategory) {
             onSelectCategory(id);
         }
     };
 
-    // Kịch bản giao diện tạm thời trong lúc hệ thống đang tải dữ liệu mạng
     if (loading) {
         return (
             <div className="container my-3 text-center">
@@ -51,52 +39,88 @@ function CategoryMenu({ activeCategory = null, onSelectCategory }) {
     return (
         <section id="category-menu-section" className="category-menu-wrapper my-4">
             <div className="container">
-                <div className="card shadow-sm border-0" style={{ borderRadius: '15px', overflow: 'hidden' }}>
-                    <div className="card-body p-2 bg-white">
+                {/* THIẾT KẾ GRID MỚI: Sử dụng Flexbox để căn đều các khối tròn danh mục */}
+                <div className="d-flex flex-wrap justify-content-center align-items-center" style={{ gap: '30px' }}>
 
-                        {/* Sử dụng cấu trúc Flexbox Nav của Bootstrap để dàn ngang menu */}
-                        <ul className="nav nav-pills nav-fill flex-column flex-sm-row">
-
-                            {/* Nút mặc định: Xem tất cả sản phẩm */}
-                            <li className="nav-item m-1">
-                                <button
-                                    className={`nav-link w-100 font-weight-bold border-0 text-uppercase py-3 ${activeCategory === null ? 'active' : 'text-secondary bg-transparent'}`}
-                                    style={{
-                                        borderRadius: '10px',
-                                        fontSize: '14px',
-                                        backgroundColor: activeCategory === null ? '#005088' : 'transparent',
-                                        color: activeCategory === null ? '#fff' : '#6c757d',
-                                        transition: '0.3s'
-                                    }}
-                                    onClick={() => handleCategoryClick(null)}
-                                >
-                                    <i className="fas fa-th-large mr-2"></i> Tất cả sản phẩm
-                                </button>
-                            </li>
-
-                            {/* VÒNG LẶP ĐỘNG: Duyệt mảng categories từ API Backend sinh ra các nút menu */}
-                            {categories.map((cat) => (
-                                <li className="nav-item m-1" key={cat.id}>
-                                    <button
-                                        className={`nav-link w-100 font-weight-bold border-0 text-uppercase py-3 ${activeCategory === cat.id ? 'active' : 'text-secondary bg-transparent'}`}
-                                        style={{
-                                            borderRadius: '10px',
-                                            fontSize: '14px',
-                                            backgroundColor: activeCategory === cat.id ? '#11CAA0' : 'transparent',
-                                            color: activeCategory === cat.id ? '#fff' : '#6c757d',
-                                            transition: '0.3s'
-                                        }}
-                                        onClick={() => handleCategoryClick(cat.id)}
-                                    >
-                                        {/* Hiển thị tên danh mục thật từ SQL Server */}
-                                        {cat.name}
-                                    </button>
-                                </li>
-                            ))}
-
-                        </ul>
-
+                    {/* KHỐI TRÒN 1: TẤT CẢ SẢN PHẨM (Dùng Icon hệ thống làm đại diện) */}
+                    <div
+                        className="category-circle-item text-center"
+                        style={{ cursor: 'pointer', width: '110px' }}
+                        onClick={() => handleCategoryClick(null)}
+                    >
+                        <div
+                            className={`circle-img-wrapper d-flex align-items-center justify-content-center mx-auto mb-2 shadow-sm`}
+                            style={{
+                                width: '90px',
+                                height: '90px',
+                                borderRadius: '50%',
+                                backgroundColor: activeCategory === null ? '#005088' : '#f8f9fa',
+                                color: activeCategory === null ? '#ffffff' : '#005088',
+                                border: activeCategory === null ? '3px solid #11CAA0' : '2px solid #e9ecef',
+                                fontSize: '24px',
+                                transition: 'all 0.3s ease'
+                            }}
+                        >
+                            <i className="fas fa-book-open"></i>
+                        </div>
+                        <span
+                            className="d-block text-truncate font-weight-bold"
+                            style={{ fontSize: '13px', color: activeCategory === null ? '#005088' : '#495057' }}
+                        >
+                            Tất cả sách
+                        </span>
                     </div>
+
+                    {/* VÒNG LẶP ĐỘNG KHỐI TRÒN CHỨA ẢNH ĐẠI DIỆN LẤY TRỰC TIẾP TỪ DATABASE */}
+                    {categories.map((cat) => {
+                        const isSelected = activeCategory === cat.id;
+
+                        // 🟢 TỰ ĐỘNG KIỂM TRA BIẾN (Chấp nhận cả chữ hoa chữ thường trả về từ API)
+                        const dbImageUrl = cat.imageUrl || cat.ImageUrl || "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=150&h=150&q=80";
+
+                        return (
+                            <div
+                                className="category-circle-item text-center"
+                                style={{ cursor: 'pointer', width: '110px' }}
+                                key={cat.id}
+                                onClick={() => handleCategoryClick(cat.id)}
+                            >
+                                <div
+                                    className="circle-img-wrapper mx-auto mb-2 shadow-sm"
+                                    style={{
+                                        width: '90px',
+                                        height: '90px',
+                                        borderRadius: '50%',
+                                        overflow: 'hidden',
+                                        border: isSelected ? '3px solid #11CAA0' : '2px solid #e9ecef',
+                                        transform: isSelected ? 'scale(1.08)' : 'scale(1)',
+                                        transition: 'all 0.3s ease'
+                                    }}
+                                >
+                                    <img
+                                        src={dbImageUrl} // 🟢 Đổ trực tiếp dữ liệu link từ SQL Server
+                                        alt={cat.name}
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover',
+                                            filter: isSelected ? 'grayscale(0%)' : 'grayscale(20%)'
+                                        }}
+                                    />
+                                </div>
+                                <span
+                                    className="d-block font-weight-bold text-truncate"
+                                    style={{
+                                        fontSize: '13px',
+                                        color: isSelected ? '#11CAA0' : '#495057'
+                                    }}
+                                >
+                                    {cat.name}
+                                </span>
+                            </div>
+                        );
+                    })}
+
                 </div>
             </div>
         </section>

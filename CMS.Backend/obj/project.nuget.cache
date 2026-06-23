@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "8Ict653g+oM=",
+  "dgSpecHash": "Vl41U1H11HM=",
   "success": true,
   "projectFilePath": "D:\\asp\\ThaiMongKieuCMS_Solution\\CMS.Backend\\CMS.Backend.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Acer\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
+    "C:\\Users\\Acer\\.nuget\\packages\\bcrypt.net-next\\4.2.0\\bcrypt.net-next.4.2.0.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\bouncycastle.cryptography\\2.6.2\\bouncycastle.cryptography.2.6.2.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\humanizer\\2.14.1\\humanizer.2.14.1.nupkg.sha512",
     "C:\\Users\\Acer\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",

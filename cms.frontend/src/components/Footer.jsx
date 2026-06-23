@@ -1,6 +1,5 @@
 ﻿import React from 'react';
 
-
 function Footer() {
     return (
         <footer className="main-footer-wrapper bg-dark text-light pt-5 mt-5">
@@ -8,46 +7,44 @@ function Footer() {
             <div className="container pb-4">
                 <div className="row">
 
-                    {/* Cột 1: Giới thiệu ngắn gọn về thương hiệu */}
+                    {/* Cột 1: Giới thiệu ngắn gọn về thương hiệu nhà sách */}
                     <div className="col-md-4 mb-4 mb-md-0">
                         <h4 className="font-weight-bold mb-3" style={{ color: '#11CAA0', letterSpacing: '1px' }}>
-                            KieuCMS<span className="text-white">.Fashion</span>
+                            Kieu<span className="text-white">.BookWorld</span>
                         </h4>
                         <p className="text-muted text-justify" style={{ fontSize: '14px', lineHeight: '1.6' }}>
-                            Hệ thống thời trang cao cấp dẫn đầu xu hướng. Chúng tôi cam kết mang đến những sản phẩm premium chất lượng cao, định hình phong cách thời thượng cho bạn.
+                            Không gian tri thức trực tuyến toàn diện, chuyên cung cấp các đầu sách văn học, kinh tế, thiếu nhi, truyện tranh bản quyền cùng các giải pháp văn phòng phẩm chất lượng cao cho độc giả.
                         </p>
                     </div>
-
 
                     {/* Cột 2: Các đường liên kết tĩnh hệ thống Chính sách */}
                     <div className="col-md-4 mb-4 mb-md-0 pl-md-5">
                         <h5 className="font-weight-bold mb-3 text-uppercase border-left pl-2" style={{ borderLeftColor: '#11CAA0', borderLeftWidth: '3px' }}>
-                            Chính Sách
+                            Chính Sách Nhà Sách
                         </h5>
                         <ul className="list-unstyled" style={{ fontSize: '14px' }}>
                             <li className="mb-2">
                                 <a href="/policy/delivery" className="text-muted text-decoration-none" onMouseOver={(e) => e.target.style.color = '#11CAA0'} onMouseOut={(e) => e.target.style.color = '#6c757d'}>
-                                    <i className="fas fa-chevron-right mr-2" style={{ fontSize: '10px' }}></i>Chính sách giao hàng
+                                    <i className="fas fa-chevron-right mr-2" style={{ fontSize: '10px' }}></i>Chính sách vận chuyển sách
                                 </a>
                             </li>
                             <li className="mb-2">
                                 <a href="/policy/exchange" className="text-muted text-decoration-none" onMouseOver={(e) => e.target.style.color = '#11CAA0'} onMouseOut={(e) => e.target.style.color = '#6c757d'}>
-                                    <i className="fas fa-chevron-right mr-2" style={{ fontSize: '10px' }}></i>Chính sách đổi trả 1-1
+                                    <i className="fas fa-chevron-right mr-2" style={{ fontSize: '10px' }}></i>Chính sách đổi trả sách lỗi
                                 </a>
                             </li>
                             <li className="mb-2">
                                 <a href="/policy/privacy" className="text-muted text-decoration-none" onMouseOver={(e) => e.target.style.color = '#11CAA0'} onMouseOut={(e) => e.target.style.color = '#6c757d'}>
-                                    <i className="fas fa-chevron-right mr-2" style={{ fontSize: '10px' }}></i>Bảo mật thông tin
+                                    <i className="fas fa-chevron-right mr-2" style={{ fontSize: '10px' }}></i>Bảo mật thông tin độc giả
                                 </a>
                             </li>
                         </ul>
                     </div>
 
-
                     {/* Cột 3: Thông tin liên hệ cửa hàng */}
                     <div className="col-md-4">
                         <h5 className="font-weight-bold mb-3 text-uppercase border-left pl-2" style={{ borderLeftColor: '#11CAA0', borderLeftWidth: '3px' }}>
-                            Liên Hệ
+                            Liên Hệ Hỗ Trợ
                         </h5>
                         <ul className="list-unstyled text-muted" style={{ fontSize: '14px', lineHeight: '1.8' }}>
                             <li className="mb-2 d-flex align-items-start">
@@ -58,27 +55,24 @@ function Footer() {
                                 <i className="fas fa-phone-alt mr-2 text-info"></i> Hotline: 090x.xxx.xxx
                             </li>
                             <li className="mb-2">
-                                <i className="fas fa-envelope mr-2 text-info"></i> support@Kieucms.retail
+                                <i className="fas fa-envelope mr-2 text-info"></i> support@kieucms.retail
                             </li>
                         </ul>
                     </div>
 
-
                 </div>
             </div>
-
 
             {/* PHẦN 2: THANH BẢN QUYỀN (COPYRIGHT BAR) */}
             <div className="copyright-bar py-3 mt-4" style={{ backgroundColor: '#1a1a1a', borderTop: '1px solid #2d2d2d' }}>
                 <div className="container text-center">
                     <p className="m-0 text-muted" style={{ fontSize: '13px' }}>
-                        &copy; {new Date().getFullYear()} <strong style={{ color: '#11CAA0' }}>KieuCMS Retail</strong>. All Rights Reserved.
+                        &copy; {new Date().getFullYear()} <strong style={{ color: '#11CAA0' }}>Kieu.BookWorld Retail</strong>. All Rights Reserved.
                     </p>
                 </div>
             </div>
         </footer>
     );
 }
-
 
 export default Footer;

@@ -1,18 +1,13 @@
-﻿
-@model IEnumerable<CMS.Data.Entities.CategoryProduct>
+﻿@model IEnumerable<CMS.Data.Entities.CategoryProduct>
 
 @{
     ViewData["Title"] = "Danh mục sản phẩm";
-}
-@{
     Layout = "_LayoutAdmin";
 }
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="text-primary fw-bold">Quản Lý Danh Mục Sản Phẩm</h2>
-        <a asp-controller="CategoryProduct"
-           asp-action="Create"
-           class="btn btn-success btn-sm">
+        <a asp-controller="CategoryProduct" asp-action="Create" class="btn btn-success btn-sm">
             <i class="bi bi-plus-circle"></i> Thêm danh mục mới
         </a>
     </div>
@@ -21,6 +16,7 @@
         <thead class="table-dark">
             <tr>
                 <th style="width: 100px;" class="text-center">Mã DM</th>
+                <th style="width: 100px;" class="text-center">Hình ảnh</th>
                 <th>Tên danh mục sản phẩm</th>
                 <th>Mô tả ngắn</th>
                 <th style="width: 180px;" class="text-center">Hành động</th>
@@ -33,25 +29,21 @@
                 {
                     <tr>
                         <td class="text-center fw-bold text-secondary">@item.Id</td>
-                        <td><strong class="text-dark">@item.Name</strong></td>
-                        <td class="text-muted">
-                            @* Nếu mô tả trống thì hiển thị dấu gạch ngang *@
-                            @(string.IsNullOrEmpty(item.Description) ? "—" : item.Description)
-                        </td>
                         <td class="text-center">
-                            <a asp-controller="CategoryProduct"
-                               asp-action="Edit"
-                               asp-route-id="@item.Id"
-                               class="btn btn-warning btn-sm fw-semibold">
-                                Sửa
-                            </a>
-                            <a asp-controller="CategoryProduct"
-                               asp-action="Delete"
-                               asp-route-id="@item.Id"
-                               class="btn btn-danger btn-sm fw-semibold"
-                               onclick="return confirm('Bạn chắc chắn muốn xóa danh mục này?')">
-                                Xóa
-                            </a>
+                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                            {
+                                <img src="@item.ImageUrl" alt="@item.Name" style="width: 45px; height: 45px; object-fit: cover; border-radius: 50%;" class="border shadow-sm" />
+                            }
+                            else
+                            {
+                                <div class="bg-light text-muted d-flex align-items-center justify-content-center border" style="width: 45px; height: 45px; border-radius: 50%; font-size: 11px;">No Img</div>
+                            }
+                        </td>
+                        <td><strong class="text-dark">@item.Name</strong></td>
+                        <td class="text-muted">@(string.IsNullOrEmpty(item.Description) ? "—" : item.Description)</td>
+                        <td class="text-center">
+                            <a asp-controller="CategoryProduct" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm fw-semibold">Sửa</a>
+                            <a asp-controller="CategoryProduct" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm fw-semibold" onclick="return confirm('Bạn chắc chắn muốn xóa danh mục này?')">Xóa</a>
                         </td>
                     </tr>
                 }
@@ -59,9 +51,8 @@
             else
             {
                 <tr>
-                    <td colspan="4" class="text-center text-muted p-4">
-                        <i class="bi bi-inbox fs-3 d-block mb-2"></i>
-                        Hệ thống chưa có dữ liệu danh mục sản phẩm.
+                    <td colspan="5" class="text-center text-muted p-4">
+                        <i class="bi bi-inbox fs-3 d-block mb-2"></i> Hệ thống chưa có dữ liệu danh mục sản phẩm.
                     </td>
                 </tr>
             }

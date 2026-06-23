@@ -33,7 +33,7 @@ const PostList = () => {
         return (
             <div className="text-center my-5">
                 <div className="spinner-border text-info" role="status"></div>
-                <p className="mt-2 text-muted">Đang kết nối Database lấy tin tức thời trang...</p>
+                <p className="mt-2 text-muted">Đang kết nối Database lấy tin tức nhà sách...</p>
             </div>
         );
     }

@@ -1,31 +1,26 @@
-﻿@{
-    Layout = "_LayoutAdmin";
-}
-
-
-@model IEnumerable<CMS.Data.Entities.Customer>
+﻿@model IEnumerable<CMS.Data.Entities.Customer>
 
 @{
+    Layout = "_LayoutAdmin";
     ViewData["Title"] = "Danh sách khách hàng";
 }
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="text-info fw-bold">Quản Lý Khách Hàng</h2>
-        <a asp-action="Create"
-           class="btn btn-success btn-sm">
-            <i class="bi bi-plus-circle"></i> Thêm khách hàng
+        <h2 class="text-info fw-bold m-0"><i class="bi bi-people-fill"></i> Quản Lý Khách Hàng</h2>
+        <a asp-action="Create" class="btn btn-success btn-sm px-3 py-2 fw-bold shadow-sm">
+            <i class="bi bi-plus-circle mr-1"></i> Thêm khách hàng mới
         </a>
     </div>
 
     <table class="table table-bordered table-striped table-hover align-middle shadow-sm">
-        <thead class="table-info text-dark">
+        <thead class="table-info text-dark font-weight-bold">
             <tr>
                 <th style="width: 80px;" class="text-center">Mã KH</th>
                 <th>Họ và tên</th>
                 <th>Địa chỉ Email</th>
                 <th>Số điện thoại</th>
-                <th>Địa chỉ</th>
+                <th>Địa chỉ cư trú</th>
                 <th style="width: 160px;" class="text-center">Hành động</th>
             </tr>
         </thead>
@@ -37,20 +32,16 @@
                     <tr>
                         <td class="text-center fw-bold text-secondary">@item.Id</td>
                         <td><strong class="text-dark">@item.FullName</strong></td>
-                        <td class="text-muted">@item.Email</td>
+                        <td class="text-primary font-weight-bold">@item.Email</td>
                         <td>@(string.IsNullOrEmpty(item.Phone) ? "—" : item.Phone)</td>
                         <td>@(string.IsNullOrEmpty(item.Address) ? "—" : item.Address)</td>
                         <td class="text-center">
-                            <a asp-action="Edit"
-                               asp-route-id="@item.Id"
-                               class="btn btn-warning btn-sm">
-                                Sửa
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm fw-bold">
+                                <i class="bi bi-pencil-square"></i> Sửa
                             </a>
-                            <a asp-action="Delete"
-                               asp-route-id="@item.Id"
-                               class="btn btn-danger btn-sm"
-                               onclick="return confirm('Bạn có chắc chắn muốn xóa khách hàng này?')">
-                                Xóa
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm fw-bold"
+                               onclick="return confirm('Bạn có chắc chắn muốn xóa tài khoản khách hàng này?')">
+                                <i class="bi bi-trash"></i> Xóa
                             </a>
                         </td>
                     </tr>
@@ -59,8 +50,8 @@
             else
             {
                 <tr>
-                    <td colspan="6" class="text-center text-muted p-4">
-                        Hệ thống chưa có thông tin khách hàng nào.
+                    <td colspan="6" class="text-center text-muted p-4 font-italic">
+                        Hệ thống dữ liệu Kieu.BookWorld chưa ghi nhận thông tin khách hàng nào.
                     </td>
                 </tr>
             }
